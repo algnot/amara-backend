@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from model.saleperson import SalePerson
 from model.student import Student
 from model.users import RoleType
+from model.users import User
 from util.encryptor import encrypt
 from util.request import handle_error, handle_access_token
 
@@ -32,7 +33,19 @@ mapper = {
         "mapper_key": ["student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "mapper_value": ["student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "need_encrypt": False,
-    }
+    },
+    "user": {
+        "model": User,
+        "offset": "id",
+        "filter": ["username", "email"],
+        "filter_operator": "=",
+        "additional_filter": [],
+        "additional_order": [],
+        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "mapper_key": ["uid", "username", "email", "role", "image_url"],
+        "mapper_value": ["id", "username", "email", "role.name", "image_url"],
+        "need_encrypt": True,
+    },
 }
 
 def resolve_nested_attribute(obj, attr_path):
