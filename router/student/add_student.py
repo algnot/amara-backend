@@ -16,8 +16,6 @@ def add_student():
     if len(sale_person) == 0:
         raise Exception(f"ไม่พบรหัส CS นี้ในระบบ")
 
-    sale_person = sale_person[0]
-
     student = Student().create({
         "firstname_th": payload["firstname_th"],
         "lastname_th": payload["lastname_th"],

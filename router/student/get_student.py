@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify
+
+from model.saleperson import SalePerson
 from model.student import Student
 from util.request import handle_error
 
@@ -12,7 +14,10 @@ def get_student_by_student_id(student_id):
     if not student:
         raise Exception("ไม่พบข้อมูลนักเรียนดังกล่าวในระบบ")
 
-    student = student[0]
+    sale_person = SalePerson().filter(filters=[("id", "=", student.sale_person_id)], limit=1)
+    sale_person_name = ""
+    if sale_person:
+        sale_person_name = sale_person.firstname + " " + sale_person.lastname
 
     return jsonify({
         "student_id": student.student_id,
@@ -20,4 +25,5 @@ def get_student_by_student_id(student_id):
         "lastname_th": student.lastname_th,
         "firstname_en": student.firstname_en,
         "lastname_en": student.lastname_en,
+        "sale_person": sale_person_name,
     })

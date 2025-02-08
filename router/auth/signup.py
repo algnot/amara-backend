@@ -47,7 +47,6 @@ def login():
     if not user:
         raise ValidationError(f"user with email {payload['email']} not found")
 
-    user = user[0]
     if not verify_password(payload["password"], user.hashed_password):
         raise ValidationError("user with email and password incorrect")
 

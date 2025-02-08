@@ -186,6 +186,10 @@ class Base(BaseClass):
             result_list.append(record)
 
         self.close_connection()
+
+        if len(result_list) == 1:
+            return result_list[0]
+
         return result_list
 
     def unlink(self):

@@ -18,8 +18,8 @@ mapper = {
         "additional_filter": [],
         "additional_order": [],
         "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
-        "mapper_key": ["firstname", "lastname", "reference_code"],
-        "mapper_value": ["firstname", "lastname", "reference_code"],
+        "mapper_key": ["id", "firstname", "lastname", "reference_code"],
+        "mapper_value": ["id", "firstname", "lastname", "reference_code"],
         "need_encrypt": False,
     },
     "student": {
@@ -99,6 +99,8 @@ def list_data():
     order_by_list.append((mapper[model]["offset"], "desc"))
 
     datas = mapper[model]["model"]().filter(filters=filter_list, limit=limit + 1, order_by=order_by_list)
+    if not isinstance(datas, list):
+        datas = [datas]
     response = []
 
     for data in datas[:limit]:
