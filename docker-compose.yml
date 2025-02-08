@@ -1,0 +1,24 @@
+
+services:
+  server:
+    build:
+      context: .
+    env_file:
+      - ./.env
+    ports:
+      - "${APP_PORT:-9000}:9000"
+    restart: always
+    volumes:
+      - ./model:/mnt/model
+      - ./router:/mnt/router
+      - ./util:/mnt/util
+      - ./alembic:/mnt/alembic
+      - ./app.py:/mnt/app.py
+      - ./secret:/mnt/secret
+      - ./static:/mnt/static
+    environment:
+      SERVICE_NAME: "amara-server"
+
+networks:
+  default:
+    driver: bridge
