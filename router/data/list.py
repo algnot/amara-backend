@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 
+from model.certificate import Certificate
+from model.course import Course
 from model.saleperson import SalePerson
 from model.student import Student
 from model.users import RoleType
@@ -46,6 +48,30 @@ mapper = {
         "mapper_value": ["id", "username", "email", "role.name", "image_url"],
         "need_encrypt": True,
     },
+    "course": {
+        "model": Course,
+        "offset": "id",
+        "filter": ["course_code", "name_th", "name_en"],
+        "filter_operator": "ilike",
+        "additional_filter": [],
+        "additional_order": [],
+        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "mapper_key": ["id", "course_code", "name_th", "name_en"],
+        "mapper_value": ["id", "course_code", "name_th", "name_en"],
+        "need_encrypt": False,
+    },
+    "certificate": {
+        "model": Certificate,
+        "offset": "id",
+        "filter": ["certificate_number", "batch"],
+        "filter_operator": "ilike",
+        "additional_filter": [],
+        "additional_order": [],
+        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "mapper_key": ["id", "certificate_number", "batch", "start_date", "end_date"],
+        "mapper_value": ["id", "certificate_number", "batch", "start_date", "end_date"],
+        "need_encrypt": False,
+    }
 }
 
 def resolve_nested_attribute(obj, attr_path):

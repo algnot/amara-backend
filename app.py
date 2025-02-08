@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from router.auth.auth import auth_app
+from router.certificate.certificate import certificate_app
+from router.course.course import course_app
 from router.data.data import data_app
 from router.pdf.pdf import pdf_app
 from router.sale_person.sale_person import sale_person_app
@@ -15,6 +17,8 @@ app.register_blueprint(pdf_app)
 app.register_blueprint(sale_person_app)
 app.register_blueprint(data_app)
 app.register_blueprint(student_app)
+app.register_blueprint(course_app)
+app.register_blueprint(certificate_app)
 
 @app.route("/_hc", methods=["GET"])
 def _hc():

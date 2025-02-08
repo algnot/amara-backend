@@ -1,9 +1,12 @@
 from logging.config import fileConfig
 
+from model.course import Course
 from model.student import Student
 from model.saleperson import SalePerson
 from model.user_tokens import UserTokens
 from model.users import User
+from model.course import Course
+from model.certificate import Certificate
 from model.base import Base
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
