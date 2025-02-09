@@ -16,7 +16,7 @@ def sign_up():
 
     find_user = User().filter(filters=[("email", "=", encrypt(payload["email"]))])
 
-    if len(find_user) > 0:
+    if find_user:
         raise ValidationError(f"user with email {payload['email']} already exists")
 
     user = User()

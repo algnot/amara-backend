@@ -29,6 +29,7 @@ def update_student(student_id):
         sale_person_name = sale_person.firstname + " " + sale_person.lastname
 
     return jsonify({
+        "id": updated_student.id,
         "firstname_th": updated_student.firstname_th,
         "lastname_th": updated_student.lastname_th,
         "firstname_en": updated_student.firstname_en,

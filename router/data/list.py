@@ -32,8 +32,8 @@ mapper = {
         "additional_filter": [],
         "additional_order": [],
         "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
-        "mapper_key": ["student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
-        "mapper_value": ["student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
+        "mapper_key": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
+        "mapper_value": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "need_encrypt": False,
     },
     "user": {

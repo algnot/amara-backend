@@ -20,6 +20,7 @@ def get_student_by_student_id(student_id):
         sale_person_name = sale_person.firstname + " " + sale_person.lastname
 
     return jsonify({
+        "id": student.id,
         "student_id": student.student_id,
         "firstname_th": student.firstname_th,
         "lastname_th": student.lastname_th,

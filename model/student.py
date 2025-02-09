@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from model.base import Base
 from datetime import datetime
 
+from model.saleperson import SalePerson
+
 
 class Student(Base):
     __tablename__ = "student"
@@ -23,7 +25,13 @@ class Student(Base):
         yy = now.strftime("%y")
         mm = now.strftime("%m")
 
-        count = len(Student().filter(filters=[("student_id", "ilike", f"{yy}{mm}%")]))
+        find = Student().filter(filters=[("student_id", "ilike", f"{yy}{mm}%")])
+        if isinstance(find, list):
+            count = len(Student().filter(filters=[("student_id", "ilike", f"{yy}{mm}%")]))
+        elif find:
+            count = 1
+        else:
+            count = 0
 
         return f"{yy}{mm}{count+1:05d}"
 

@@ -57,7 +57,7 @@ def add_new_sale_person():
 
     sale_person = SalePerson().filter(filters=[("reference_code", "=", payload["code"])], limit=1)
 
-    if len(sale_person) > 0:
+    if sale_person:
         raise Exception(f"ผู้ขายรหัส {payload['code']} มีอยู่ในระบบเรียบร้อยแล้ว")
 
     created_sale_person = SalePerson().create({

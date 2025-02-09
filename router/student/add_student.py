@@ -13,7 +13,7 @@ def add_student():
     payload = request.get_json()
     sale_person = SalePerson().filter(filters=[("reference_code", "=", payload["ref_code"])])
 
-    if len(sale_person) == 0:
+    if not sale_person:
         raise Exception(f"ไม่พบรหัส CS นี้ในระบบ")
 
     student = Student().create({
@@ -25,6 +25,7 @@ def add_student():
     })
 
     return jsonify({
+        "id": student.id,
         "firstname_th": student.firstname_th,
         "lastname_th": student.lastname_th,
         "firstname_en": student.firstname_en,
