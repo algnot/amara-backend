@@ -1,8 +1,11 @@
 from flask import Blueprint
-from router.certificate.request_certificate import request_certificate_app
 
+from router.certificate.get_certification import get_certification_app
+from router.certificate.request_certificate import request_certificate_app
+from router.certificate.update_certificate import update_certificate_app
 
 certificate_app = Blueprint("certificate", __name__, url_prefix="/certificate")
 
 certificate_app.register_blueprint(request_certificate_app)
-
+certificate_app.register_blueprint(get_certification_app)
+certificate_app.register_blueprint(update_certificate_app)

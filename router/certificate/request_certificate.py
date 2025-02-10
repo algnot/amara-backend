@@ -17,11 +17,11 @@ def request_certificate():
         raise Exception("คุณได้ขอใบประกาศให้นักเรียนในหลักสูตรนี้แล้ว กรุณาลองเปลี่ยนหลักสูตรหรือติดต่อผู้ดูแลหากต้องการเปลี่ยนข้อมูลวันที่")
 
     created_certificate = Certificate().create({
-        "certificate_number": "draft",
         "start_date": payload["start_date"],
         "end_date": payload["end_date"],
         "course_id": payload["course_id"],
-        "student_id": payload["student_id"]
+        "student_id": payload["student_id"],
+        "batch": "draft"
     })
 
     return jsonify({
