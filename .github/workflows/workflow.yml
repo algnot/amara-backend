@@ -28,7 +28,7 @@ jobs:
             FLASK_RUN_HOST=0.0.0.0
             FLASK_RUN_DEBUG=true
             
-            APP_PORT=9001
+            APP_PORT=9002
             APP_VERSION=${{ github.sha }}
             APP_ENV=production
             SOCKET_PORT=9001
