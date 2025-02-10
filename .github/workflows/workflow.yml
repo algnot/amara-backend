@@ -1,0 +1,49 @@
+name: Deployment Workflow
+
+on: [push]
+
+jobs:
+
+  Deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          debug: true
+          command_timeout: 200m
+          script: |
+            cd amara-backend
+            git fetch --all 
+            git reset --hard origin/main 
+
+            cat > .env << EOF
+            FLASK_RUN_PORT=9000
+            FLASK_RUN_HOST=0.0.0.0
+            FLASK_RUN_DEBUG=true
+            
+            APP_PORT=9001
+            APP_VERSION=${{ github.sha }}
+            APP_ENV=production
+            SOCKET_PORT=9001
+            
+            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+            EOF
+
+            docker image prune -a -f
+            docker compose up --build -d
+            docker ps
+            echo "Deploy completed!"
