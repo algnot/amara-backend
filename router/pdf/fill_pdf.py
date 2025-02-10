@@ -1,5 +1,6 @@
 from flask import Blueprint, request, send_file, jsonify
 from util.request import handle_error, validate_request
+import os
 import requests
 import tempfile
 import os
@@ -8,17 +9,19 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
+file_path = os.path.dirname(os.path.realpath(__file__))
+
 INCH = 72.0
 PAGE_HEIGHT = 8.27 * INCH
 PAGE_WIDTH = 11.69 * INCH
-NUMBER_FONT_PATH = "/Users/algnot/Desktop/coding/amara-backend/static/font/helvethaica.ttf"
-FONT_PATH = "/Users/algnot/Desktop/coding/amara-backend/static/font/kodchiang.ttf"
+NUMBER_FONT_PATH = f"{file_path}/font/helvethaica.ttf"
+FONT_PATH = f"{file_path}/font/kodchiang.ttf"
 
 fill_pdf_app = Blueprint("fill_pdf", __name__)
 
 
 @fill_pdf_app.route("/fill", methods=["POST"])
-@validate_request(["url", "params"])
+@validate_request(["url", "params", "lang"])
 @handle_error
 def fill_pdf():
     global overlay_path
@@ -41,7 +44,8 @@ def fill_pdf():
                                  fill_data.get("name"),
                                  fill_data.get("course_name"),
                                  fill_data.get("certificate_date"),
-                                 fill_data.get("date"))
+                                 fill_data.get("date"),
+                                 payload.get("lang"))
 
         merge_pdfs(temp_pdf_path, overlay_path, output_pdf_path)
         return send_file(output_pdf_path, as_attachment=True, download_name="filled_form.pdf",
@@ -50,7 +54,7 @@ def fill_pdf():
         cleanup_files([temp_pdf_path, output_pdf_path, overlay_path])
 
 
-def fill_name(number, name, course_name, certificate_date, date):
+def fill_name(number, name, course_name, certificate_date, date, lang):
     overlay_pdf_path = "/tmp/overlay.pdf"
     pdfmetrics.registerFont(TTFont("Helvethaica", NUMBER_FONT_PATH))
     pdfmetrics.registerFont(TTFont("Kodchiang", FONT_PATH))
@@ -63,37 +67,36 @@ def fill_name(number, name, course_name, certificate_date, date):
     c.setFillColorRGB(*(75/255, 123/255, 207/255))
     c.setFont("Helvethaica", 20)
     text_width = c.stringWidth(number, "Helvethaica", 20)
-    x_position = ((PAGE_WIDTH - text_width) / 2) + 260
+    x_position = ((PAGE_WIDTH - text_width) / 2) + (250 if lang == "th" else 240)
     y_position = PAGE_HEIGHT - 20 - 55
     c.drawString(x_position, y_position, number)
 
     # name position
     c.setFillColorRGB(*(201/255, 158/255, 80/255))
-    c.setFont("Helvethaica", 35)
-    text_width = c.stringWidth(name, "Helvethaica", 35)
+    c.setFont("Kodchiang", 35)
+    text_width = c.stringWidth(name, "Kodchiang", 35)
     x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 35) / 2) - 20
+    y_position = ((PAGE_HEIGHT - 35) / 2) - (20 if lang == "th" else 12)
     c.drawString(x_position, y_position, name)
 
     # course_name position
-    c.setFont("Helvethaica", 29)
-    text_width = c.stringWidth(course_name, "Helvethaica", 29)
+    c.setFont("Kodchiang", 29)
+    text_width = c.stringWidth(course_name, "Kodchiang", 29)
     x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 29) / 2) - 85
+    y_position = ((PAGE_HEIGHT - 29) / 2) - (85 if lang == "th" else 80)
     c.drawString(x_position, y_position, course_name)
-    c.setFont("Helvethaica", 20)
 
     # certificate_date position
-    c.setFont("Helvethaica", 23)
-    text_width = c.stringWidth(certificate_date, "Helvethaica", 23)
+    c.setFont("Kodchiang", 23)
+    text_width = c.stringWidth(certificate_date, "Kodchiang", 23)
     x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 23) / 2) - 120
+    y_position = ((PAGE_HEIGHT - 23) / 2) - (120 if lang == "th" else 115)
     c.drawString(x_position, y_position, certificate_date)
 
     # date position
-    text_width = c.stringWidth(date, "Helvethaica", 23)
+    text_width = c.stringWidth(date, "Kodchiang", 23)
     x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 23) / 2) - 155
+    y_position = ((PAGE_HEIGHT - 23) / 2) - (155 if lang == "th" else 150)
     c.drawString(x_position, y_position, date)
 
     c.save()
