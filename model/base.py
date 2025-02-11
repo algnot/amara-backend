@@ -114,7 +114,7 @@ class Base(BaseClass):
         self.close_connection()
         return record
 
-    def filter(self, filters=None, limit=1000, order_by=None):
+    def filter(self, filters=None, limit=999999999, order_by=None):
         if filters is None:
             filters = []
 
