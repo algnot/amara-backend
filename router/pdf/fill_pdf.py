@@ -65,38 +65,38 @@ def fill_name(number, name, course_name, certificate_date, date, lang):
 
     # number position
     c.setFillColorRGB(*(75/255, 123/255, 207/255))
-    c.setFont("Helvethaica", 20)
-    text_width = c.stringWidth(number, "Helvethaica", 20)
+    c.setFont("Helvethaica", 19)
+    text_width = c.stringWidth(number, "Helvethaica", 19)
     x_position = ((PAGE_WIDTH - text_width) / 2) + (250 if lang == "th" else 240)
     y_position = PAGE_HEIGHT - 20 - 55
     c.drawString(x_position, y_position, number)
 
     # name position
     c.setFillColorRGB(*(201/255, 158/255, 80/255))
-    c.setFont("Kodchiang", 35)
-    text_width = c.stringWidth(name, "Kodchiang", 35)
+    c.setFont("Helvethaica", 34)
+    text_width = c.stringWidth(name, "Helvethaica", 34)
     x_position = (PAGE_WIDTH - text_width) / 2
     y_position = ((PAGE_HEIGHT - 35) / 2) - (20 if lang == "th" else 12)
     c.drawString(x_position, y_position, name)
 
     # course_name position
-    c.setFont("Kodchiang", 29)
-    text_width = c.stringWidth(course_name, "Kodchiang", 29)
+    c.setFont("Helvethaica", 28)
+    text_width = c.stringWidth(course_name, "Helvethaica", 28)
     x_position = (PAGE_WIDTH - text_width) / 2
     y_position = ((PAGE_HEIGHT - 29) / 2) - (85 if lang == "th" else 80)
     c.drawString(x_position, y_position, course_name)
 
     # certificate_date position
-    c.setFont("Kodchiang", 23)
-    text_width = c.stringWidth(certificate_date, "Kodchiang", 23)
+    c.setFont("Helvethaica", 22)
+    text_width = c.stringWidth(certificate_date, "Helvethaica", 22)
     x_position = (PAGE_WIDTH - text_width) / 2
     y_position = ((PAGE_HEIGHT - 23) / 2) - (120 if lang == "th" else 115)
     c.drawString(x_position, y_position, certificate_date)
 
     # date position
-    text_width = c.stringWidth(date, "Kodchiang", 23)
+    text_width = c.stringWidth(date, "Helvethaica", 22)
     x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 23) / 2) - (155 if lang == "th" else 150)
+    y_position = ((PAGE_HEIGHT - 22) / 2) - (155 if lang == "th" else 150)
     c.drawString(x_position, y_position, date)
 
     c.save()
