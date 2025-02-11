@@ -1,11 +1,12 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request
-
 from model.certificate import Certificate
 from model.course import Course
 from model.saleperson import SalePerson
 from model.student import Student
 from model.users import RoleType
 from model.users import User
+from util.date import format_thai_date
 from util.encryptor import encrypt
 from util.request import handle_error, handle_access_token
 
@@ -133,7 +134,10 @@ def list_data():
         to_append = {}
         for index, key in enumerate(mapper[model]["mapper_key"]):
             attr_path = mapper[model]["mapper_value"][index]
-            to_append[key] = resolve_nested_attribute(data, attr_path)
+            value = resolve_nested_attribute(data, attr_path)
+            if isinstance(value, datetime):
+                value = format_thai_date(value)
+            to_append[key] = value
         response.append(to_append)
 
     return jsonify({
