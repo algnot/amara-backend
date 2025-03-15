@@ -1,21 +1,24 @@
-from flask import Blueprint, request, send_file, jsonify
-from util.request import handle_error, validate_request
-import os
 import requests
 import tempfile
 import os
-from PyPDF2 import PdfReader, PdfWriter
+
+from flask import Blueprint, request, send_file, jsonify
+from util.pdf import merge_pdfs, cleanup_files, fill_content_pdf
+from util.request import handle_error, validate_request
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
-file_path = os.path.dirname(os.path.realpath(__file__))
+file_path = os.path.dirname(os.path.abspath(__file__))
 
 INCH = 72.0
 PAGE_HEIGHT = 8.27 * INCH
 PAGE_WIDTH = 11.69 * INCH
-NUMBER_FONT_PATH = f"{file_path}/font/helvethaica.ttf"
-FONT_PATH = f"{file_path}/font/kodchiang.ttf"
+NUMBER_FONT_PATH = f"{file_path}/../../static/font/helvethaica.ttf"
+FONT_PATH = f"{file_path}/../../static/font/kodchiang.ttf"
+
+pdfmetrics.registerFont(TTFont("Helvethaica", NUMBER_FONT_PATH))
+pdfmetrics.registerFont(TTFont("Kodchiang", FONT_PATH))
 
 fill_pdf_app = Blueprint("fill_pdf", __name__)
 
@@ -56,69 +59,53 @@ def fill_pdf():
 
 def fill_name(number, name, course_name, certificate_date, date, lang):
     overlay_pdf_path = "/tmp/overlay.pdf"
-    pdfmetrics.registerFont(TTFont("Helvethaica", NUMBER_FONT_PATH))
-    pdfmetrics.registerFont(TTFont("Kodchiang", FONT_PATH))
     c = canvas.Canvas(overlay_pdf_path, pagesize=(PAGE_WIDTH, PAGE_HEIGHT))
-    # center
-    # x_position = (PAGE_WIDTH - text_width) / 2
-    # y_position = ((PAGE_HEIGHT - font_size) / 2)
 
     # number position
-    c.setFillColorRGB(*(75/255, 123/255, 207/255))
-    c.setFont("Helvethaica", 19)
     text_width = c.stringWidth(number, "Helvethaica", 19)
-    x_position = ((PAGE_WIDTH - text_width) / 2) + (250 if lang == "th" else 240)
-    y_position = PAGE_HEIGHT - 20 - 55
-    c.drawString(x_position, y_position, number)
+    fill_content_pdf(c=c,
+                     x_position=((PAGE_WIDTH - text_width) / 2) + (250 if lang == "th" else 240),
+                     y_position=PAGE_HEIGHT - 75,
+                     content=number,
+                     color=(75/255, 123/255, 207/255),
+                     font="Helvethaica",
+                     font_size=19)
 
-    # name position
-    c.setFillColorRGB(*(201/255, 158/255, 80/255))
-    c.setFont("Helvethaica", 34)
     text_width = c.stringWidth(name, "Helvethaica", 34)
-    x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 35) / 2) - (20 if lang == "th" else 12)
-    c.drawString(x_position, y_position, name)
+    fill_content_pdf(c=c,
+                     x_position=(PAGE_WIDTH - text_width) / 2,
+                     y_position=((PAGE_HEIGHT - 35) / 2) - (20 if lang == "th" else 12),
+                     content=name,
+                     color=(201/255, 158/255, 80/255),
+                     font="Helvethaica",
+                     font_size=34)
 
-    # course_name position
-    c.setFont("Helvethaica", 28)
     text_width = c.stringWidth(course_name, "Helvethaica", 28)
-    x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 29) / 2) - (85 if lang == "th" else 80)
-    c.drawString(x_position, y_position, course_name)
+    fill_content_pdf(c=c,
+                     x_position=(PAGE_WIDTH - text_width) / 2,
+                     y_position=((PAGE_HEIGHT - 29) / 2) - (85 if lang == "th" else 80),
+                     content=course_name,
+                     color=(201 / 255, 158 / 255, 80 / 255),
+                     font="Helvethaica",
+                     font_size=28)
 
-    # certificate_date position
-    c.setFont("Helvethaica", 22)
     text_width = c.stringWidth(certificate_date, "Helvethaica", 22)
-    x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 23) / 2) - (120 if lang == "th" else 115)
-    c.drawString(x_position, y_position, certificate_date)
+    fill_content_pdf(c=c,
+                     x_position=(PAGE_WIDTH - text_width) / 2,
+                     y_position=((PAGE_HEIGHT - 23) / 2) - (120 if lang == "th" else 115),
+                     content=certificate_date,
+                     color=(201 / 255, 158 / 255, 80 / 255),
+                     font="Helvethaica",
+                     font_size=22)
 
-    # date position
     text_width = c.stringWidth(date, "Helvethaica", 22)
-    x_position = (PAGE_WIDTH - text_width) / 2
-    y_position = ((PAGE_HEIGHT - 22) / 2) - (155 if lang == "th" else 150)
-    c.drawString(x_position, y_position, date)
+    fill_content_pdf(c=c,
+                     x_position=(PAGE_WIDTH - text_width) / 2,
+                     y_position=((PAGE_HEIGHT - 22) / 2) - (155 if lang == "th" else 150),
+                     content=date,
+                     color=(201 / 255, 158 / 255, 80 / 255),
+                     font="Helvethaica",
+                     font_size=22)
 
     c.save()
     return overlay_pdf_path
-
-
-def merge_pdfs(original_pdf_path, overlay_pdf_path, output_pdf_path):
-    original_pdf = PdfReader(original_pdf_path)
-    overlay_pdf = PdfReader(overlay_pdf_path)
-    pdf_writer = PdfWriter()
-
-    for page_num in range(len(original_pdf.pages)):
-        original_page = original_pdf.pages[page_num]
-        overlay_page = overlay_pdf.pages[0]
-        original_page.merge_page(overlay_page)
-        pdf_writer.add_page(original_page)
-
-    with open(output_pdf_path, "wb") as output_pdf:
-        pdf_writer.write(output_pdf)
-
-
-def cleanup_files(file_paths):
-    for file_path in file_paths:
-        if os.path.exists(file_path):
-            os.remove(file_path)
