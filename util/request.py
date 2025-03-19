@@ -1,5 +1,7 @@
 from functools import wraps
 from flask import request, jsonify
+
+from model.system_config import SystemConfig
 from model.user_tokens import UserTokens, TokenType
 from model.users import User
 
@@ -28,6 +30,14 @@ def handle_error(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
+            maintenance_message = SystemConfig().filter(filters=[("key", "=", "maintenance_message")], limit=1)
+            if maintenance_message:
+                if maintenance_message.value != "":
+                    return jsonify({
+                        "status": False,
+                        "message": maintenance_message.value
+                    }), 400
+
             return func(*args, **kwargs)
         except Exception as e:
             error_message = str(e)

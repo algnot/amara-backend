@@ -1,5 +1,6 @@
 from logging.config import fileConfig
 
+from model.system_config import SystemConfig
 from model.student import Student
 from model.saleperson import SalePerson
 from model.user_tokens import UserTokens
