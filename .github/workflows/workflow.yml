@@ -21,7 +21,7 @@ jobs:
           script: |
             cd amara-backend
             git fetch --all 
-            git reset --hard origin/main 
+            sudo git reset --hard origin/main 
 
             cat > .env << EOF
             FLASK_RUN_PORT=9000
