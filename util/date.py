@@ -20,14 +20,14 @@ def format_thai_date(dt):
     month_name = thai_months[dt.month]
     return f"{dt.day} {month_name} {buddhist_year}"
 
-def format_thai_date_v2(dt):
+def format_thai_date_with_thai_numerals(dt):
     if not isinstance(dt, datetime):
         return dt
     buddhist_year = dt.year + 543
     month_name = thai_months[dt.month]
     day_thai = to_thai_numerals(dt.day)
     year_thai = to_thai_numerals(buddhist_year)
-    return f"{day_thai} เดือน{month_name} {year_thai}"
+    return f"{day_thai} {month_name} {year_thai}"
 
 def format_eng_date(dt):
     return dt.strftime("%B %-d, %Y")

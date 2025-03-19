@@ -4,7 +4,7 @@ from flask import Blueprint, send_file, request
 from model.certificate import Certificate
 from model.course import Course
 from model.student import Student
-from util.date import format_thai_date, format_eng_date, format_thai_date_v2
+from util.date import format_eng_date, format_thai_date_with_thai_numerals, to_thai_numerals
 from util.pdf import merge_pdfs, cleanup_files, fill_content_pdf
 from util.request import handle_error
 from reportlab.pdfgen import canvas
@@ -35,7 +35,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 19,
-                    "content": f"เลขที่ {certification.certificate_number}"
+                    "content": f"เลขที่ {to_thai_numerals(certification.certificate_number)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -67,7 +67,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"รุ่นที่ {certification.batch} ระหว่างวันที่ {format_thai_date(certification.start_date)} ถึงวันที่ {format_thai_date(certification.end_date)}"
+                    "content": f"รุ่นที่ {to_thai_numerals(certification.batch)} ระหว่างวันที่ {format_thai_date_with_thai_numerals(certification.start_date)} ถึงวันที่ {format_thai_date_with_thai_numerals(certification.end_date)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -75,7 +75,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date(certification.given_date)}"
+                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date_with_thai_numerals(certification.given_date)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -169,7 +169,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 19,
-                    "content": f"เลขที่ {certification.certificate_number}"
+                    "content": f"เลขที่ {to_thai_numerals(certification.certificate_number)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -201,7 +201,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
-                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date_v2(certification.given_date)}"
+                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date_with_thai_numerals(certification.given_date)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
