@@ -42,7 +42,8 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
 
             EOF
-
+            
+            docker system prune
             docker image prune -a -f
             docker compose up --build -d
             docker ps

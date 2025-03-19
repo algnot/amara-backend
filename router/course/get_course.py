@@ -15,5 +15,6 @@ def update_course(course_id):
         "id": existing_course.id,
         "course_code": existing_course.course_code,
         "name_th": existing_course.name_th,
-        "name_en": existing_course.name_en
+        "name_en": existing_course.name_en,
+        "version": str(existing_course.certificate_version),
     })

@@ -41,6 +41,7 @@ def get_certification(certification_number):
             "course_code": course.course_code,
             "name_th": course.name_th,
             "name_en": course.name_en,
+            "version": str(float(course.certificate_version)),
         },
         "student": {
             "id": student.id,

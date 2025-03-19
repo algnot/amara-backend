@@ -18,12 +18,14 @@ def add_course():
     course = Course().create({
         "course_code": payload["course_code"],
         "name_th": payload["name_th"],
-        "name_en": payload["name_en"]
+        "name_en": payload["name_en"],
+        "certificate_version": int(payload["version"]),
     })
 
     return jsonify({
         "id": course.id,
         "course_code": course.course_code,
         "name_th": course.name_th,
-        "name_en": course.name_en
+        "name_en": course.name_en,
+        "version": str(course.certificate_version),
     })

@@ -9,3 +9,4 @@ class Course(Base):
     course_code = Column(VARCHAR(200), nullable=False)
     name_th = Column(VARCHAR(200), nullable=False)
     name_en = Column(VARCHAR(200), nullable=False)
+    certificate_version = Column(Integer, nullable=True, default=1)

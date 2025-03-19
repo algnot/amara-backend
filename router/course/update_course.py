@@ -6,7 +6,7 @@ from util.request import handle_error, validate_request
 update_course_app = Blueprint("update_course", __name__)
 
 @update_course_app.route("/update/<string:course_id>", methods=["PUT"])
-@validate_request(["course_code", "name_th", "name_en"])
+@validate_request(["course_code", "name_th", "name_en", "version"])
 @handle_error
 def update_course(course_id):
     payload = request.get_json()
@@ -22,12 +22,14 @@ def update_course(course_id):
     updated_course = course.update({
         "course_code": payload["course_code"],
         "name_th": payload["name_th"],
-        "name_en": payload["name_en"]
+        "name_en": payload["name_en"],
+        "certificate_version": int(payload["version"])
     })
 
     return jsonify({
         "id": updated_course.id,
         "course_code": updated_course.course_code,
         "name_th": updated_course.name_th,
-        "name_en": updated_course.name_en
+        "name_en": updated_course.name_en,
+        "version": str(updated_course.certificate_version),
     })

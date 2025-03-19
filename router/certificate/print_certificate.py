@@ -1,6 +1,6 @@
 import os
 import tempfile
-from flask import Blueprint, send_file
+from flask import Blueprint, send_file, request
 from model.certificate import Certificate
 from model.course import Course
 from model.student import Student
@@ -112,6 +112,124 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "content": f"Given on {format_eng_date(certification.given_date)}"
                 }
             ]
+        },
+        "2.0": {
+            "th": [
+                {
+                    "x_position": "((PAGE_WIDTH - text_width) / 2) + 250",
+                    "y_position": "PAGE_HEIGHT - 75",
+                    "color": (75 / 255, 123 / 255, 207 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 19,
+                    "content": f"เลขที่ {certification.certificate_number}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 35) / 2) - 27",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 34,
+                    "content": f"{student.firstname_th} {student.lastname_th}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width - text_width_next) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 67",
+                    "color": (75 / 255, 123 / 255, 207 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"ได้ศึกษาสำเร็จหลักสูตรวิชา"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 67",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"{course.name_th}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 107",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date(certification.given_date)}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 185",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 22,
+                    "content": f"ธนวัฒน์ ตลับทอง.................................................."
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 215",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 22,
+                    "content": f"ผู้บริหารโรงเรียน"
+                }
+            ],
+            "en": [
+                {
+                    "x_position": "((PAGE_WIDTH - text_width) / 2) + 240",
+                    "y_position": "PAGE_HEIGHT - 75",
+                    "color": (75 / 255, 123 / 255, 207 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 19,
+                    "content": f"Certificate No. {certification.certificate_number}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 35) / 2) - 22",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 34,
+                    "content": f"{student.firstname_en} {student.lastname_en}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width - text_width_next) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 62",
+                    "color": (75 / 255, 123 / 255, 207 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"Completed the course of study "
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 62",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"{course.name_en}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 27,
+                    "content": f"Given on {format_eng_date(certification.given_date)}"
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 180",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 22,
+                    "content": f"Tanawat Talabtong.................................................."
+                },
+                {
+                    "x_position": "(PAGE_WIDTH - text_width) / 2",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 210",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
+                    "font": "Helvethaica",
+                    "font_size": 22,
+                    "content": f"School Director"
+                }
+            ],
         }
     }
 
@@ -120,6 +238,9 @@ def get_pdf_mapping(version, language, certification, course, student):
 @print_certification_app.route("/print/<string:language>/<string:version>/<string:certification_number>", methods=["GET"])
 @handle_error
 def print_certification(language, version, certification_number):
+    query = request.args
+    without_layout = query.get("without_layout", "false")
+
     certification = Certificate().filter(filters=[("certificate_number", "=", certification_number)], limit=1)
 
     if not certification:
@@ -143,18 +264,25 @@ def print_certification(language, version, certification_number):
     c = canvas.Canvas(overlay_path, pagesize=(PAGE_WIDTH, PAGE_HEIGHT))
 
     try:
-        for field in mapping:
-            text_width = c.stringWidth(field["content"], field["font"], field["font_size"])
+        for index, field in enumerate(mapping):
+            text_width_prev = 0 if index == 0 else c.stringWidth(mapping[index - 1]["content"], mapping[index - 1]["font"], mapping[index - 1]["font_size"])
+            text_width = c.stringWidth(mapping[index]["content"], mapping[index]["font"], mapping[index]["font_size"])
+            text_width_next = 0 if index + 1 > len(mapping) - 1 else c.stringWidth(mapping[index + 1]["content"], mapping[index + 1]["font"], mapping[index + 1]["font_size"])
             fill_content_pdf(c=c,
-                             x_position=eval(field["x_position"]),
-                             y_position=eval(field["y_position"]),
-                             content=field["content"],
-                             color=field["color"],
-                             font=field["font"],
-                             font_size=field["font_size"])
+                             x_position=eval(mapping[index]["x_position"]),
+                             y_position=eval(mapping[index]["y_position"]),
+                             content=mapping[index]["content"],
+                             color=mapping[index]["color"],
+                             font=mapping[index]["font"],
+                             font_size=mapping[index]["font_size"])
 
         c.save()
-        merge_pdfs(pdf_path, overlay_path, output_pdf_path)
-        return send_file(output_pdf_path, as_attachment=False, mimetype="application/pdf")
+        if without_layout.lower() == "true":
+            return send_file(overlay_path, as_attachment=False, mimetype="application/pdf",
+                             download_name=f"{certification.certificate_number}-{language}-without-layout.pdf")
+        else:
+            merge_pdfs(pdf_path, overlay_path, output_pdf_path)
+            return send_file(output_pdf_path, as_attachment=False, mimetype="application/pdf",
+                             download_name=f"{certification.certificate_number}-{language}.pdf")
     finally:
         cleanup_files([output_pdf_path, overlay_path])

@@ -14,7 +14,7 @@ class Certificate(Base):
     batch = Column(VARCHAR(5), nullable=True)
     given_date = Column(DATETIME, nullable=True)
 
-    course_id = Column(VARCHAR(200), ForeignKey("course.id"), nullable=False)
+    course_id = Column(Integer, ForeignKey("course.id"), nullable=False)
     course = relationship("Course")
 
     student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
