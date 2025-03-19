@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, VARCHAR, ForeignKey, DATETIME
+from sqlalchemy import Column, Integer, VARCHAR, ForeignKey, DATETIME, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from model.base import Base
@@ -19,6 +19,7 @@ class Certificate(Base):
 
     student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
     student = relationship("Student")
+    archived = Column(Boolean, default=False)
 
     def generate_certificate_number(self):
         now = datetime.now()

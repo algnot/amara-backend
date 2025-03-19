@@ -66,7 +66,7 @@ mapper = {
         "offset": "id",
         "filter": ["certificate_number", "batch"],
         "filter_operator": "ilike",
-        "additional_filter": [],
+        "additional_filter": [("archived", "=", False)],
         "additional_order": [],
         "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "certificate_number", "batch", "start_date", "end_date"],

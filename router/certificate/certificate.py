@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+from router.certificate.archive_certificate import delete_certification_app
 from router.certificate.get_certification import get_certification_app
 from router.certificate.print_certificate import print_certification_app
 from router.certificate.request_certificate import request_certificate_app
@@ -11,3 +12,4 @@ certificate_app.register_blueprint(request_certificate_app)
 certificate_app.register_blueprint(get_certification_app)
 certificate_app.register_blueprint(update_certificate_app)
 certificate_app.register_blueprint(print_certification_app)
+certificate_app.register_blueprint(delete_certification_app)
