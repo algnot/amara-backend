@@ -18,6 +18,13 @@ def format_thai_date(dt):
         return dt
     buddhist_year = dt.year + 543
     month_name = thai_months[dt.month]
+    return f"{dt.day} {month_name} {buddhist_year}"
+
+def format_thai_date_v2(dt):
+    if not isinstance(dt, datetime):
+        return dt
+    buddhist_year = dt.year + 543
+    month_name = thai_months[dt.month]
     day_thai = to_thai_numerals(dt.day)
     year_thai = to_thai_numerals(buddhist_year)
     return f"{day_thai} เดือน{month_name} {year_thai}"

@@ -4,7 +4,7 @@ from flask import Blueprint, send_file, request
 from model.certificate import Certificate
 from model.course import Course
 from model.student import Student
-from util.date import format_thai_date, format_eng_date
+from util.date import format_thai_date, format_eng_date, format_thai_date_v2
 from util.pdf import merge_pdfs, cleanup_files, fill_content_pdf
 from util.request import handle_error
 from reportlab.pdfgen import canvas
@@ -153,7 +153,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
-                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date(certification.given_date)}"
+                    "content": f"ให้ไว้ ณ วันที่ {format_thai_date_v2(certification.given_date)}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
