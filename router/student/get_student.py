@@ -22,7 +22,7 @@ def get_student_by_student_id(student_id):
     if sale_person:
         sale_person_name = sale_person.firstname + " " + sale_person.lastname
 
-    all_certificate = Certificate().filter(filters=[("student_id", "=", student.id), ("batch", "!=", "draft")])
+    all_certificate = Certificate().filter(filters=[("student_id", "=", student.id), ("batch", "!=", "draft"), ("archived", "=", False)])
     certificate_list = []
 
     if not isinstance(all_certificate, list):
