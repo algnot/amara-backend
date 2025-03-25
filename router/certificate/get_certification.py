@@ -97,9 +97,9 @@ def get_public_certification(certification_number):
         "student": {
             "id": student.id,
             "student_id": student.student_id,
-            "firstname_th": censor_name(student.firstname_th),
+            "firstname_th": student.firstname_th,
             "lastname_th": censor_name(student.lastname_th),
-            "firstname_en": censor_name(student.firstname_en),
+            "firstname_en": student.firstname_en,
             "lastname_en": censor_name(student.lastname_en),
         }
     })
