@@ -2,12 +2,13 @@ from flask import Blueprint, jsonify, request
 
 from model.saleperson import SalePerson
 from model.student import Student
-from util.request import handle_error, validate_request
+from util.request import handle_error, validate_request, handle_access_token
 
 update_student_app = Blueprint("update_student", __name__)
 
 @update_student_app.route("/update/<string:student_id>", methods=["PUT"])
 @validate_request(["firstname_th", "lastname_th", "firstname_en", "lastname_en"])
+@handle_access_token
 @handle_error
 def update_student(student_id):
     payload = request.get_json()

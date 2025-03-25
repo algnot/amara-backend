@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify
 from model.course import Course
-from util.request import handle_error
+from util.request import handle_error, handle_access_token
 
 get_course_app = Blueprint("get_course", __name__)
 
 @get_course_app.route("/get/<string:course_id>", methods=["GET"])
+@handle_access_token
 @handle_error
 def update_course(course_id):
     existing_course = Course().filter(filters=[("id", "=", course_id)], limit=1)

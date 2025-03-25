@@ -56,7 +56,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [],
+        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "course_code", "name_th", "name_en"],
         "mapper_value": ["id", "course_code", "name_th", "name_en"],
         "need_encrypt": False,
@@ -84,10 +84,10 @@ def resolve_nested_attribute(obj, attr_path):
     return obj
 
 @list_data_app.route("/list", methods=["GET"])
-# @handle_access_token
+@handle_access_token
 @handle_error
 def list_data():
-    # user = request.user
+    user = request.user
     query = request.args
     model = query.get("model", "")
     limit = int(query.get("limit", 20))
@@ -97,8 +97,8 @@ def list_data():
     if model not in mapper.keys():
         raise Exception("model is not in mapper")
 
-    # if len(mapper[model]["role"]) > 0 and user.role not in mapper[model]["role"]:
-    #     raise Exception("users do not have permission")
+    if len(mapper[model]["role"]) > 0 and user.role not in mapper[model]["role"]:
+        raise Exception("users do not have permission")
 
     filter_list = []
     if offset:

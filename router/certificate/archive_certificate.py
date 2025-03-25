@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify
 
 from model.certificate import Certificate
-from util.request import handle_error
+from util.request import handle_error, handle_access_token
 
 delete_certification_app = Blueprint("delete_certification", __name__)
 
 @delete_certification_app.route("/delete/<string:certificate_number>", methods=["DELETE"])
+@handle_access_token
 @handle_error
 def get_certification(certificate_number):
     existing_certificate = Certificate().filter(filters=[("certificate_number", "=", certificate_number)], limit=1)

@@ -97,7 +97,7 @@ class UserTokens(Base):
         return refresh_token.generate_jwt(expired_in=expired_in, type=TokenType.REFRESH)
 
     def generate_access_token(self):
-        expired_in = datetime.timedelta(minutes=20)
+        expired_in = datetime.timedelta(hours=3)
         access_token = UserTokens()
         access_token.create({
             "user_id": self.user_id,
@@ -107,7 +107,7 @@ class UserTokens(Base):
         return access_token.generate_jwt(expired_in, type=TokenType.ACCESS)
 
     def generate_reset_password_token(self, user_id):
-        expired_in = datetime.timedelta(minutes=30)
+        expired_in = datetime.timedelta(minutes=15)
         access_token = UserTokens()
         access_token.create({
             "user_id": user_id,

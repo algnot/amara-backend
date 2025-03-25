@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
 
 from model.course import Course
-from util.request import handle_error, validate_request
+from util.request import handle_error, validate_request, handle_access_token
 
 add_course_app = Blueprint("add_course", __name__)
 
 @add_course_app.route("/new", methods=["POST"])
 @validate_request(["course_code", "name_th", "name_en"])
+@handle_access_token
 @handle_error
 def add_course():
     payload = request.get_json()
