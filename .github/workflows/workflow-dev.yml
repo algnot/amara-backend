@@ -70,6 +70,6 @@ jobs:
           
           docker system prune
           docker image prune -a -f
-          docker compose up --build -d
+          docker compose -p amara-dev up --build -d
           
           exit
