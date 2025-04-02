@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   Test:
-    uses: ${{ github.repository_owner }}/amara-testing/.github/workflows/trigger-test.yml@main
+    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
     with:
       commit_sha: ${{ github.sha }}
       repo_url: https://github.com/${{ github.repository }}
