@@ -3,8 +3,15 @@ name: Deployment Prod
 on: [push]
 
 jobs:
+  Test:
+    uses: https://${{ github.repository_owner }}.github.io/amara-testing/.github/workflows/trigger-test.yml@main
+    with:
+      commit_sha: ${{ github.sha }}
+      repo_url: https://github.com/${{ github.repository }}
+    secrets: inherit
 
   Deploy:
+    needs: Test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: tonkla-vm-deploy-env
