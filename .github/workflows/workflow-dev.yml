@@ -1,4 +1,4 @@
-name: Deployment Workflow
+name: Deployment Dev
 
 on: [push]
 
@@ -42,11 +42,11 @@ jobs:
           APP_VERSION=${{ github.sha }}
           APP_ENV=development
           
-          DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-          DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-          DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-          DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-          DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+          DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}
+          DATABASE_PORT=${{ secrets.DEV_DATABASE_PORT }}
+          DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}
+          DATABASE_PASSWORD=${{ secrets.DEV_DATABASE_PASSWORD }}
+          DATABASE_NAME=${{ secrets.DEV_DATABASE_NAME }}
           
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
