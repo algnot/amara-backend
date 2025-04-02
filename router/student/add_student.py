@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from model.saleperson import SalePerson
 from model.student import Student
+from util.encryptor import encrypt
 from util.request import handle_error, validate_request
 
 add_student_app = Blueprint("add_student", __name__)
@@ -15,6 +16,15 @@ def add_student():
 
     if not sale_person:
         raise Exception(f"ไม่พบรหัส CS นี้ในระบบ")
+
+    existing_student = Student().filter(filters=[("firstname_th", "=", encrypt(payload[ "firstname_th"])),
+                                                 ("lastname_th", "=", encrypt(payload[ "lastname_th"])), "or",
+                                                 ("firstname_en", "=", encrypt(payload["firstname_en"])),
+                                                 ("lastname_en", "=", encrypt(payload["lastname_en"]))], limit=1)
+
+    if existing_student:
+        raise Exception(f"ข้อมูลนักเรียน {payload['firstname_th']} {payload['lastname_th']} ({payload['firstname_en']} {payload['lastname_en']}) "
+                        f"มีอยู่แล้วในระบบ รหัสนักเรียน {existing_student.student_id} ไม่สามารถสร้างซ้ำได้")
 
     student = Student().create({
         "firstname_th": payload["firstname_th"],
