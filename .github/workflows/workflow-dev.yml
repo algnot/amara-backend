@@ -5,7 +5,7 @@ on: [push]
 jobs:
 
   Deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     environment: tonkla-vm-deploy-env
 
@@ -38,9 +38,9 @@ jobs:
           FLASK_RUN_HOST=0.0.0.0
           FLASK_RUN_DEBUG=true
           
-          APP_PORT=9002
+          APP_PORT=19002
           APP_VERSION=${{ github.sha }}
-          APP_ENV=production
+          APP_ENV=development
           
           DATABASE_HOST=${{ secrets.DATABASE_HOST }}
           DATABASE_PORT=${{ secrets.DATABASE_PORT }}
@@ -54,7 +54,7 @@ jobs:
           cat ./.env | ssh -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.CLOUDFLARED_SSH_HOST }}" \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
-            ${{ secrets.CLOUDFLARED_SSH_USER }}@${{ secrets.CLOUDFLARED_SSH_HOST }} 'cat > ~/server/amara-backend/.env'
+            ${{ secrets.CLOUDFLARED_SSH_USER }}@${{ secrets.CLOUDFLARED_SSH_HOST }} 'cat > ~/server/dev/amara-backend/.env'
 
       - name: Access Server
         run: |
@@ -64,9 +64,9 @@ jobs:
               ${{ secrets.CLOUDFLARED_SSH_USER }}@${{ secrets.CLOUDFLARED_SSH_HOST }} << EOF
           
           set -e
-          cd server/amara-backend/
+          cd server/dev/amara-backend/
           git fetch --all 
-          git reset --hard origin/main 
+          git reset --hard origin/dev
           
           docker system prune
           docker image prune -a -f
