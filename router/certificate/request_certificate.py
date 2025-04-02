@@ -12,7 +12,8 @@ def request_certificate():
     payload = request.get_json()
 
     existing_certificate = Certificate().filter(filters=[("student_id", "=", payload["student_id"]),
-                                                         ("course_id", "=", payload["course_id"])])
+                                                         ("course_id", "=", payload["course_id"]),
+                                                         ("archived", "=", False)])
     if existing_certificate:
         raise Exception("คุณได้ขอใบประกาศให้นักเรียนในหลักสูตรนี้แล้ว กรุณาลองเปลี่ยนหลักสูตรหรือติดต่อผู้ดูแลหากต้องการเปลี่ยนข้อมูลวันที่")
 
