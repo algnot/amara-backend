@@ -6,6 +6,7 @@ from router.certificate.certificate import certificate_app
 from router.course.course import course_app
 from router.data.data import data_app
 from router.export.export import export_app
+from router.permission.permission import permission_app
 from router.sale_person.sale_person import sale_person_app
 from router.student.student import student_app
 
@@ -19,6 +20,7 @@ app.register_blueprint(student_app)
 app.register_blueprint(course_app)
 app.register_blueprint(certificate_app)
 app.register_blueprint(export_app)
+app.register_blueprint(permission_app)
 
 @app.route("/_hc", methods=["GET"])
 def _hc():

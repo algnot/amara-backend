@@ -6,6 +6,7 @@ from model.saleperson import SalePerson
 from model.student import Student
 from model.users import RoleType
 from model.users import User
+from model.permission import Permission
 from util.date import format_thai_date
 from util.encryptor import encrypt
 from util.request import handle_error, handle_access_token
@@ -20,7 +21,7 @@ mapper = {
         "filter_operator": "=",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "firstname", "lastname", "reference_code"],
         "mapper_value": ["id", "firstname", "lastname", "reference_code"],
         "need_encrypt": False,
@@ -32,7 +33,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "mapper_value": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "need_encrypt": False,
@@ -56,7 +57,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "course_code", "name_th", "name_en"],
         "mapper_value": ["id", "course_code", "name_th", "name_en"],
         "need_encrypt": False,
@@ -68,9 +69,21 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [("archived", "=", False)],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
         "mapper_key": ["id", "certificate_number", "batch", "start_date", "end_date"],
         "mapper_value": ["id", "certificate_number", "batch", "start_date", "end_date"],
+        "need_encrypt": False,
+    },
+    "permission": {
+        "model": Permission,
+        "offset": "id",
+        "filter": ["key", "name", "description"],
+        "filter_operator": "ilike",
+        "additional_filter": [],
+        "additional_order": [],
+        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "mapper_key": ["id", "key", "name", "description"],
+        "mapper_value": ["id", "key", "name", "description"],
         "need_encrypt": False,
     }
 }

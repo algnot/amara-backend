@@ -10,9 +10,9 @@ from util.encryptor import hash_password
 
 
 class RoleType(enum.Enum):
-    USER = 1
-    ADMIN = 2
-    SUPER_ADMIN = 3
+    USER = 1 # no permission before granted
+    ADMIN = 2 # all permission
+    SUPER_ADMIN = 3 # all permission and can create/edit user permission
 
 class User(Base):
     __tablename__ = "users"
