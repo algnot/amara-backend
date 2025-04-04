@@ -7,7 +7,7 @@ from util.request import handle_error, handle_access_token
 export_student_app = Blueprint("export_student", __name__)
 
 @export_student_app.route("/student", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def export_student():
     all_students = Student().filter()

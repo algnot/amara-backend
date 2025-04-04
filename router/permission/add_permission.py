@@ -7,7 +7,7 @@ from util.request import handle_error, handle_access_token, validate_request
 add_permission_app = Blueprint("add_permission", __name__)
 
 @add_permission_app.route("/new", methods=["POST"])
-@handle_access_token
+@handle_access_token()
 @validate_request(["key", "name", "description"])
 @handle_error
 def add_permission():

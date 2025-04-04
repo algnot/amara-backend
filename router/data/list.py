@@ -4,7 +4,6 @@ from model.certificate import Certificate
 from model.course import Course
 from model.saleperson import SalePerson
 from model.student import Student
-from model.users import RoleType
 from model.users import User
 from model.permission import Permission
 from util.date import format_thai_date
@@ -21,7 +20,7 @@ mapper = {
         "filter_operator": "=",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": ["read-sale-person-data"],
         "mapper_key": ["id", "firstname", "lastname", "reference_code"],
         "mapper_value": ["id", "firstname", "lastname", "reference_code"],
         "need_encrypt": False,
@@ -33,7 +32,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": ["read-student-data"],
         "mapper_key": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "mapper_value": ["id", "student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "need_encrypt": False,
@@ -45,7 +44,7 @@ mapper = {
         "filter_operator": "=",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": [],
         "mapper_key": ["uid", "username", "email", "role", "image_url"],
         "mapper_value": ["id", "username", "email", "role.name", "image_url"],
         "need_encrypt": True,
@@ -57,7 +56,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": ["read-course-data"],
         "mapper_key": ["id", "course_code", "name_th", "name_en"],
         "mapper_value": ["id", "course_code", "name_th", "name_en"],
         "need_encrypt": False,
@@ -69,7 +68,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [("archived", "=", False)],
         "additional_order": [],
-        "role": [RoleType.USER, RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": ["read-certificate-data"],
         "mapper_key": ["id", "certificate_number", "batch", "start_date", "end_date"],
         "mapper_value": ["id", "certificate_number", "batch", "start_date", "end_date"],
         "need_encrypt": False,
@@ -81,7 +80,7 @@ mapper = {
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
-        "role": [RoleType.ADMIN, RoleType.SUPER_ADMIN],
+        "permission": [],
         "mapper_key": ["id", "key", "name", "description"],
         "mapper_value": ["id", "key", "name", "description"],
         "need_encrypt": False,
@@ -97,10 +96,10 @@ def resolve_nested_attribute(obj, attr_path):
     return obj
 
 @list_data_app.route("/list", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def list_data():
-    user = request.user
+    user_permissions = request.permissions
     query = request.args
     model = query.get("model", "")
     limit = int(query.get("limit", 20))
@@ -110,7 +109,7 @@ def list_data():
     if model not in mapper.keys():
         raise Exception("model is not in mapper")
 
-    if len(mapper[model]["role"]) > 0 and user.role not in mapper[model]["role"]:
+    if len(mapper[model]["permission"]) > 0 and not any(p in user_permissions for p in mapper[model]["permission"]):
         raise Exception("users do not have permission")
 
     filter_list = []

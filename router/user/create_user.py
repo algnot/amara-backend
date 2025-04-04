@@ -8,7 +8,7 @@ from util.request import handle_error, handle_access_token, validate_request
 create_user_app = Blueprint("create_user", __name__)
 
 @create_user_app.route("/create", methods=["POST"])
-@handle_access_token
+@handle_access_token()
 @validate_request(["username", "email", "password", "role"])
 @handle_error
 def create_user():

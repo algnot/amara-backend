@@ -9,7 +9,7 @@ sale_person_app = Blueprint("sale_person", __name__, url_prefix="/sale-person")
 
 @sale_person_app.route("/update/<string:sale_person_id>", methods=["PUT"])
 @validate_request(["firstname", "lastname", "code"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def update_sale_person_by_id(sale_person_id):
     payload = request.get_json()

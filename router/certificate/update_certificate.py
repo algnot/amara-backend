@@ -8,7 +8,7 @@ update_certificate_app = Blueprint("update_certificate", __name__)
 
 @update_certificate_app.route("/update/<string:certificate_number>", methods=["PUT"])
 @validate_request(["start_date", "end_date", "given_date", "batch"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def update_course(certificate_number):
     payload = request.get_json()

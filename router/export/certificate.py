@@ -8,7 +8,7 @@ from util.request import handle_error, handle_access_token
 export_certificate_app = Blueprint("export_certificate", __name__)
 
 @export_certificate_app.route("/certificate", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def export_certificate():
     all_certificate = Certificate().filter(filters=[("archived", "=", False)])

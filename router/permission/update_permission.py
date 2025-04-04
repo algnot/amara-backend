@@ -7,7 +7,7 @@ from util.request import handle_error, handle_access_token, validate_request
 update_permission_app = Blueprint("update_permission", __name__)
 
 @update_permission_app.route("/update/<string:permission_id>", methods=["PUT"])
-@handle_access_token
+@handle_access_token()
 @validate_request(["key", "name", "description"])
 @handle_error
 def update_permission_by_id(permission_id):

@@ -8,7 +8,7 @@ from model.permission import Permission
 get_user_app = Blueprint("get_user", __name__)
 
 @get_user_app.route("/get/<string:user_id>", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def get_user_by_id(user_id):
     user = request.user

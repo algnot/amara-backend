@@ -7,7 +7,7 @@ from util.request import handle_error, handle_access_token
 export_sale_person_app = Blueprint("export_sale_person", __name__)
 
 @export_sale_person_app.route("/sale-person", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def export_sale_person():
     all_sale_person = SalePerson().filter()

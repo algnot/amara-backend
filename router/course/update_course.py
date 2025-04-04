@@ -7,7 +7,7 @@ update_course_app = Blueprint("update_course", __name__)
 
 @update_course_app.route("/update/<string:course_id>", methods=["PUT"])
 @validate_request(["course_code", "name_th", "name_en", "version"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def update_course(course_id):
     payload = request.get_json()

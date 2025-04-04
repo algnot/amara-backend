@@ -9,7 +9,7 @@ from util.request import handle_error, handle_access_token
 get_certification_app = Blueprint("get_certification", __name__)
 
 @get_certification_app.route("/get/<string:certification_number>", methods=["GET"])
-@handle_access_token
+@handle_access_token()
 @handle_error
 def get_certification(certification_number):
     certification = Certificate().filter(filters=[("certificate_number", "=", certification_number)], limit=1)
