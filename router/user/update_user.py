@@ -44,7 +44,7 @@ def update_user_by_id(user_id):
         for permission in payload["permissions"]:
             create_permission = UserToPermission().create({
                 "permission_id": permission,
-                "user_id": user.id,
+                "user_id": user_id,
             })
             permission_list.append(create_permission.permission_id)
     else:
