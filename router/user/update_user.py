@@ -21,11 +21,16 @@ def update_user_by_id(user_id):
     if not existing_user:
         raise Exception(f"ไม่พบ user id={user_id} ในระบบ")
 
-    existing_user.update({
+    prepare_update = {
         "username": payload["username"],
         "email": payload["email"],
-        "role": payload.get("role", existing_user.role),
-    })
+    }
+
+    if payload.get("role", "") != "":
+        prepare_update["role"] = payload["role"]
+
+
+    existing_user.update(prepare_update)
 
     if payload.get("password", False):
         existing_user.change_password(payload["password"])
