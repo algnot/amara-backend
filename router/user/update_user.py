@@ -7,7 +7,7 @@ update_user_app = Blueprint("update_user", __name__)
 
 @update_user_app.route("/update/<string:user_id>", methods=["PUT"])
 @handle_access_token
-@validate_request(["username", "email", "role"])
+@validate_request(["username", "email"])
 @handle_error
 def update_user_by_id(user_id):
     user = request.user
@@ -24,7 +24,7 @@ def update_user_by_id(user_id):
     existing_user.update({
         "username": payload["username"],
         "email": payload["email"],
-        "role": payload["role"],
+        "role": payload.get("role", existing_user.role),
     })
 
     if payload.get("password", False):
