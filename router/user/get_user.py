@@ -25,23 +25,12 @@ def get_user_by_id(user_id):
     if existing_user.role in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
         all_permission = Permission().filter()
         for permission in all_permission:
-            permission_list.append({
-                "id": permission.id,
-                "key": permission.key,
-                "name": permission.name,
-                "description": permission.description,
-            })
+            permission_list.append(permission.id)
     else:
         user_to_permission = UserToPermission().filter(filters=[("user_id", "=", user_id)], alway_list=True)
         permission_ids = [up.permission_id for up in user_to_permission]
-        user_permission = Permission().filter([("id", "in", permission_ids)], alway_list=True)
-        for permission in user_permission:
-            permission_list.append({
-                "id": permission.id,
-                "key": permission.key,
-                "name": permission.name,
-                "description": permission.description,
-            })
+        for permission in permission_ids:
+            permission_list.append(permission.id)
 
     return jsonify({
         "user_id": existing_user.id,
