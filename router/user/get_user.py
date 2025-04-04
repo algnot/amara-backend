@@ -29,8 +29,8 @@ def get_user_by_id(user_id):
     else:
         user_to_permission = UserToPermission().filter(filters=[("user_id", "=", user_id)], alway_list=True)
         permission_ids = [up.permission_id for up in user_to_permission]
-        for permission in permission_ids:
-            permission_list.append(permission.id)
+        for permission_id in permission_ids:
+            permission_list.append(permission_id)
 
     return jsonify({
         "user_id": existing_user.id,
