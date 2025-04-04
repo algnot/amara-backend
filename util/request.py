@@ -102,7 +102,7 @@ def handle_access_token(permission=False):
                 user = User().get_by_id(user_id)
 
                 if user.role in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
-                    user_permissions = Permission().filter()
+                    user_permissions = Permission().filter(alway_list=True)
                     user_permissions = [up.key for up in user_permissions]
                 else:
                     user_permissions = UserToPermission().filter(filters=[("user_id", "=", user_id)], alway_list=True)
