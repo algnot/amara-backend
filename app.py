@@ -9,6 +9,7 @@ from router.export.export import export_app
 from router.permission.permission import permission_app
 from router.sale_person.sale_person import sale_person_app
 from router.student.student import student_app
+from router.user.user import user_app
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,7 @@ app.register_blueprint(course_app)
 app.register_blueprint(certificate_app)
 app.register_blueprint(export_app)
 app.register_blueprint(permission_app)
+app.register_blueprint(user_app)
 
 @app.route("/_hc", methods=["GET"])
 def _hc():

@@ -114,7 +114,7 @@ class Base(BaseClass):
         self.close_connection()
         return record
 
-    def filter(self, filters=None, limit=999999999, order_by=None):
+    def filter(self, filters=None, limit=999999999, order_by=None, alway_list=False):
         if filters is None:
             filters = []
 
@@ -189,7 +189,7 @@ class Base(BaseClass):
 
         self.close_connection()
 
-        if len(result_list) == 1:
+        if len(result_list) == 1 and not alway_list:
             return result_list[0]
 
         return result_list
