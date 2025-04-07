@@ -57,4 +57,5 @@ def get_student_by_student_id(student_id):
         "lastname_en": student.lastname_en,
         "sale_person": sale_person_name,
         "certificate": certificate_list,
+        "user_id": student.user_id,
     })

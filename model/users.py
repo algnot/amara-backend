@@ -13,6 +13,7 @@ class RoleType(enum.Enum):
     USER = 1 # no permission before granted
     ADMIN = 2 # all permission
     SUPER_ADMIN = 3 # all permission and can create/edit user permission
+    STUDENT = 4 # for student permission
 
 class User(Base):
     __tablename__ = "users"

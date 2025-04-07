@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from model.saleperson import SalePerson
 from model.student import Student
+from model.users import User
 from util.request import handle_error, validate_request, handle_access_token
 
 update_student_app = Blueprint("update_student", __name__)
@@ -16,6 +17,13 @@ def update_student(student_id):
 
     if not student:
         raise Exception("ไม่พบข้อมูลนักเรียนดังกล่าวในระบบ")
+
+    if student.user_id != 0:
+        user = User().filter(filters=[("id", "=", student.user_id)], limit=1)
+        if user:
+            user.update({
+                "username": f"{payload['firstname_en']} {payload['lastname_en']}",
+            })
 
     updated_student = student.update({
         "firstname_th": payload["firstname_th"],
