@@ -37,5 +37,5 @@ def get_user_by_id(user_id):
         "role": str(existing_user.role.name),
         "image_url": existing_user.image_url or "",
         "permissions": permission_list,
-        "google_uid": existing_user.google_uid,
+        "google_uid": existing_user.google_uid or "",
     })
