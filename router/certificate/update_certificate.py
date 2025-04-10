@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 
 from model.certificate import Certificate
-from model.course import Course
 from util.request import handle_error, validate_request, handle_access_token
 
 update_certificate_app = Blueprint("update_certificate", __name__)

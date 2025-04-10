@@ -14,7 +14,7 @@ def get_user_by_id(user_id):
     user = request.user
 
     if user.role not in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
-        raise Exception(f"คุณไม่มีสิทธิ์ในการเข้าถึงข้อมูล user กรุณาติดต่อผู้ดูแลระบบ")
+        raise Exception("คุณไม่มีสิทธิ์ในการเข้าถึงข้อมูล user กรุณาติดต่อผู้ดูแลระบบ")
 
     existing_user = User().filter(filters=[("id", "=", user_id)], limit=1)
 

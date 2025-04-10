@@ -1,4 +1,3 @@
-from os.path import exists
 
 from flask import Blueprint, request, jsonify
 

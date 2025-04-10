@@ -51,7 +51,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 26,
-                    "content": f"ได้ศึกษาสำเร็จหลักสูตรวิชา"
+                    "content": "ได้ศึกษาสำเร็จหลักสูตรวิชา"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
@@ -83,7 +83,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"ธนวัฒน์ ตลับทอง.................................................."
+                    "content": "ธนวัฒน์ ตลับทอง.................................................."
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -91,7 +91,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"ผู้บริหารโรงเรียน"
+                    "content": "ผู้บริหารโรงเรียน"
                 }
             ],
             "en": [
@@ -117,7 +117,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
-                    "content": f"Completed the course of study "
+                    "content": "Completed the course of study "
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
@@ -149,7 +149,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"Tanawat Talabtong.................................................."
+                    "content": "Tanawat Talabtong.................................................."
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -157,7 +157,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"School Director"
+                    "content": "School Director"
                 }
             ]
         },
@@ -185,7 +185,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
-                    "content": f"ได้ศึกษาสำเร็จหลักสูตรวิชา"
+                    "content": "ได้ศึกษาสำเร็จหลักสูตรวิชา"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
@@ -209,7 +209,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"ธนวัฒน์ ตลับทอง.................................................."
+                    "content": "ธนวัฒน์ ตลับทอง.................................................."
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -217,7 +217,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"ผู้บริหารโรงเรียน"
+                    "content": "ผู้บริหารโรงเรียน"
                 }
             ],
             "en": [
@@ -243,7 +243,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
-                    "content": f"Completed the course of study "
+                    "content": "Completed the course of study "
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
@@ -267,7 +267,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"Tanawat Talabtong.................................................."
+                    "content": "Tanawat Talabtong.................................................."
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
@@ -275,7 +275,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": f"School Director"
+                    "content": "School Director"
                 }
             ],
         }
@@ -316,6 +316,7 @@ def print_certification(language, version, certification_number):
             text_width_prev = 0 if index == 0 else c.stringWidth(mapping[index - 1]["content"], mapping[index - 1]["font"], mapping[index - 1]["font_size"])
             text_width = c.stringWidth(mapping[index]["content"], mapping[index]["font"], mapping[index]["font_size"])
             text_width_next = 0 if index + 1 > len(mapping) - 1 else c.stringWidth(mapping[index + 1]["content"], mapping[index + 1]["font"], mapping[index + 1]["font_size"])
+            print(text_width_prev, text_width, text_width_next)
             fill_content_pdf(c=c,
                              x_position=eval(mapping[index]["x_position"]),
                              y_position=eval(mapping[index]["y_position"]),

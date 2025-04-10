@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from model.users import RoleType
 from model.permission import Permission
-from util.request import handle_error, handle_access_token, validate_request
+from util.request import handle_error, handle_access_token
 
 get_permission_app = Blueprint("get_permission", __name__)
 

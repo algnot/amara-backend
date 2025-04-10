@@ -1,6 +1,5 @@
 from flask import Blueprint
 
-from router.data.list import list_data_app
 from router.permission.add_permission import add_permission_app
 from router.permission.get_permission import get_permission_app
 from router.permission.update_permission import update_permission_app

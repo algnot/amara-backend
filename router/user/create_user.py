@@ -16,7 +16,7 @@ def create_user():
     payload = request.get_json()
 
     if user.role not in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
-        raise Exception(f"คุณไม่มีสิทธิ์ในการสร้าง user กรุณาติดต่อผู้ดูแลระบบ")
+        raise Exception("คุณไม่มีสิทธิ์ในการสร้าง user กรุณาติดต่อผู้ดูแลระบบ")
 
     existing_user = User().filter(filters=[("email", "=", encrypt(payload["email"]))], limit=1)
 

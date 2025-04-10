@@ -82,7 +82,7 @@ def handle_token(func):
     return wrapper
 
 def handle_access_token(permission=False):
-    if not permission is None:
+    if permission is not None:
         permission = []
 
     def decorator(func):

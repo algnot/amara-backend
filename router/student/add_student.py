@@ -15,7 +15,7 @@ def add_student():
     sale_person = SalePerson().filter(filters=[("reference_code", "=", payload["ref_code"])])
 
     if not sale_person:
-        raise Exception(f"ไม่พบรหัส CS นี้ในระบบ")
+        raise Exception("ไม่พบรหัส CS นี้ในระบบ")
 
     existing_student = Student().filter(filters=[("firstname_th", "=", encrypt(payload[ "firstname_th"])),
                                                  ("lastname_th", "=", encrypt(payload[ "lastname_th"])), "or",
