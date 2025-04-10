@@ -18,7 +18,7 @@ def get_secret_key() -> bytes:
             content = fileRead.read()
             if content:
                 return content.encode("utf-8")
-    except Exception as error:
+    except Exception:
         secret_key = Fernet.generate_key().decode("utf-8")
 
         with open(secret_key_path, "w") as fileWrite:
@@ -52,7 +52,7 @@ def encrypt(original_string: str) -> bytes:
         key = get_secret_key()
         ciper = Fernet(key)
         return ciper._encrypt_from_parts(original_string.encode(), 0, key[:16])
-    except Exception as error:
+    except Exception:
         return b""
 
 def decrypt(encrypted_string:bytes) -> str:
@@ -60,7 +60,7 @@ def decrypt(encrypted_string:bytes) -> str:
         key = get_secret_key()
         ciper = Fernet(key)
         return ciper.decrypt(encrypted_string).decode()
-    except Exception as error:
+    except Exception:
         return ""
 
 def hash_password(password: str) -> bytes:
