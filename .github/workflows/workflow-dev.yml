@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   Lint:
+    if: github.ref == 'refs/heads/dev'
     name: Lint Check
     runs-on: ubuntu-latest
 
