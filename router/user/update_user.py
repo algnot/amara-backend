@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, request
+from flask import Blueprint, jsonify, request
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
 from util.request import handle_access_token, validate_request, handle_error
