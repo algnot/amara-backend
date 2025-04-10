@@ -3,13 +3,11 @@ import enum
 import uuid
 import json
 import os
-from jwt.utils import get_int_from_datetime
 from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, Boolean, Enum, String
 from sqlalchemy.orm import relationship
 from model.base import Base
-from jwt import JWT, jwk_from_pem, jwk_from_dict
 from util.encryptor import generate_rsa_keys
-
+from jwcrypto import jwt, jwk
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 secret_key_path = os.path.join(BASE_DIR, "../secret/secret_key.txt")
@@ -40,51 +38,50 @@ class UserTokens(Base):
         return self.generate_refresh_token(), self.generate_access_token()
 
     def generate_jwt(self, expired_in, type: TokenType):
-        message = {
-            "sub": {
-                "user_id": self.user_id,
-                "token_id": self.id
-            },
+        payload = json.dumps({
+            "sub": f"{self.user_id}:{self.id}",
             "type": str(type.value),
-            "iat": get_int_from_datetime(self.created_at),
-            "exp": get_int_from_datetime(datetime.datetime.now(datetime.timezone.utc) + expired_in),
-        }
+            "iat": int(self.created_at.timestamp()),
+            "exp": int((datetime.datetime.now(datetime.timezone.utc) + expired_in).timestamp()),
+        })
 
-        signing_key = self._load_signing_key()
-
-        jwt_instance = JWT()
-        compact_jws = jwt_instance.encode(message, signing_key, alg="RS256")
-
-        return compact_jws
+        key = self._load_signing_key()
+        token = jwt.JWT(header={"alg": "RS256"}, claims=payload)
+        token.make_signed_token(key)
+        return token.serialize()
 
     def verify_token(self, token):
-        verifying_key = self._load_verifying_key()
-        jwt_instance = JWT()
-        payload = jwt_instance.decode(token, verifying_key, do_time_check=True)
+        key = self._load_verifying_key()
+        decoded = jwt.JWT(key=key, jwt=token)
+        payload = json.loads(decoded.claims)
 
         current_time = datetime.datetime.now(datetime.timezone.utc)
         expiration_time = datetime.datetime.fromtimestamp(payload["exp"], datetime.timezone.utc)
         if expiration_time < current_time:
             raise Exception("Token has expired")
 
-        token_data = self.get_by_id(payload["sub"]["token_id"])
+        sub_value = payload.get("sub", "")
+        if ":" not in sub_value:
+            raise Exception("Invalid sub format")
+
+        user_id, token_id = sub_value.split(":")
+        token_data = self.get_by_id(token_id)
         if token_data.revoked:
-            raise Exception("Token has revoked")
+            raise Exception("Token has been revoked")
 
         return payload
-
 
     def _load_signing_key(self):
         try:
             with open(rsa_private_key_path, "rb") as fh:
-                return jwk_from_pem(fh.read())
+                return jwk.JWK.from_pem(fh.read())
         except FileNotFoundError:
             generate_rsa_keys()
             return self._load_signing_key()
 
     def _load_verifying_key(self):
         with open(rsa_public_key_path, "r") as fh:
-            return jwk_from_dict(json.load(fh))
+            return jwk.JWK.from_json(fh.read())
 
     def generate_refresh_token(self):
         expired_in = datetime.timedelta(days=14)

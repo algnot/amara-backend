@@ -61,7 +61,7 @@ def decrypt(encrypted_string:bytes) -> str:
         ciper = Fernet(key)
         return ciper.decrypt(encrypted_string).decode()
     except Exception as error:
-        return "error decrypted"
+        return ""
 
 def hash_password(password: str) -> bytes:
     salt = bcrypt.gensalt()

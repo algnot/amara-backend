@@ -18,8 +18,7 @@ class Student(Base):
     sale_person_id = Column(Integer, ForeignKey("sale_person.id"), nullable=False)
     sale_person = relationship("SalePerson")
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User")
+    user_id = Column(Integer, nullable=True)
 
     def generate_student_id(self):
         now = datetime.now()

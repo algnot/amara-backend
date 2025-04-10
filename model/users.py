@@ -17,7 +17,7 @@ class RoleType(enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
-    __encrypted_field__ = ["username", "email"]
+    __encrypted_field__ = ["username", "email", "google_uid"]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(VARBINARY(200), nullable=False)
@@ -29,6 +29,7 @@ class User(Base):
                                    onupdate=datetime.datetime.now(datetime.timezone.utc))
     role = Column(Enum(RoleType), default=RoleType.USER, nullable=False)
     image_url = Column(TEXT, nullable=True)
+    google_uid = Column(VARBINARY(200), nullable=True)
 
     def sign_up(self, password):
         return self.create({

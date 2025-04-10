@@ -159,4 +159,5 @@ cython_debug/
 /secret/rsa_private_key.pem
 /secret/rsa_public_key.json
 /secret/firebase_secret.json
+/secret/firebase_service_account_key.json
 .idea

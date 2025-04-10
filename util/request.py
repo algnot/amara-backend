@@ -98,7 +98,7 @@ def handle_access_token(permission=False):
 
             try:
                 user_data = get_user_from_token(token, TokenType.ACCESS)["sub"]
-                user_id = user_data["user_id"]
+                user_id = int(user_data.split(":")[0])
                 user = User().get_by_id(user_id)
 
                 if user.role in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
@@ -136,8 +136,8 @@ def handle_refresh_token(func):
             return jsonify({"status": False, "message": "Invalid token format"}), 403
 
         try:
-            user_id = get_user_from_token(token, TokenType.REFRESH)["sub"]["user_id"]
-            user = User().get_by_id(user_id)
+            user_id = int(get_user_from_token(token, TokenType.REFRESH)["sub"].split(":")[0])
+            user = User().get_by_id(int(user_id))
             request.user = user
         except Exception as e:
             return jsonify({"status": False, "message": str(e)}), 403
