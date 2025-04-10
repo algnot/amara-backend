@@ -5,6 +5,7 @@ from util.request import handle_access_token, validate_request, handle_error
 
 update_user_app = Blueprint("update_user", __name__)
 
+
 @update_user_app.route("/update/<string:user_id>", methods=["PUT"])
 @handle_access_token()
 @validate_request(["username", "email"])
@@ -29,6 +30,8 @@ def update_user_by_id(user_id):
     if payload.get("role", "") != "":
         prepare_update["role"] = payload["role"]
 
+    if payload["email"] != existing_user.email:
+        prepare_update["google_uid"] = ""
 
     existing_user.update(prepare_update)
 
