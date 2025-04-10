@@ -3,9 +3,28 @@ name: Deployment Dev
 on: [push]
 
 jobs:
+  Lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff Lint
+        run: ruff check .
 
   Deploy:
     if: github.ref == 'refs/heads/dev'
+    needs: Lint
     runs-on: ubuntu-latest
     environment: tonkla-vm-deploy-env
 
