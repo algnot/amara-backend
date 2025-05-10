@@ -18,7 +18,7 @@ def generate_user_student(student_id):
 
     random_password = str(random.randint(100000, 999999))
 
-    if student.user_id == 0:
+    if student.user_id == 0 or student.user_id is None:
         user = User()
         user.username = f"{student.firstname_en} {student.lastname_en}"
         user.email = student.student_id
