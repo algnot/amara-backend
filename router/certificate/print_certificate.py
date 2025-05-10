@@ -105,15 +105,15 @@ def get_pdf_mapping(version, language, certification, course, student):
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
-                    "y_position": "((PAGE_HEIGHT - 35) / 2) - 15",
-                    "color": (201/255, 158/255, 80/255),
+                    "y_position": "((PAGE_HEIGHT - 35) / 2) - 22",
+                    "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 34,
                     "content": f"{student.firstname_en} {student.lastname_en}"
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width - text_width_next) / 2",
-                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 50",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 62",
                     "color": (75 / 255, 123 / 255, 207 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
@@ -121,7 +121,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
-                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 50",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 62",
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
@@ -129,20 +129,52 @@ def get_pdf_mapping(version, language, certification, course, student):
                 },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
-                    "y_position": "((PAGE_HEIGHT - 23) / 2) - 85",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102",
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
-                    "font_size": 22,
-                    "content": f"Batch {certification.batch} between {format_eng_date(certification.start_date)} and {format_eng_date(certification.end_date)}"
-                },
-                {
-                    "x_position": "(PAGE_WIDTH - text_width) / 2",
-                    "y_position": "((PAGE_HEIGHT - 22) / 2) - 115",
-                    "color": (201 / 255, 158 / 255, 80 / 255),
-                    "font": "Helvethaica",
-                    "font_size": 22,
+                    "font_size": 27,
                     "content": f"Given on {format_eng_date(certification.given_date)}"
                 },
+                # {
+                #     "x_position": "(PAGE_WIDTH - text_width) / 2",
+                #     "y_position": "((PAGE_HEIGHT - 35) / 2) - 30",
+                #     "color": (201/255, 158/255, 80/255),
+                #     "font": "Helvethaica",
+                #     "font_size": 34,
+                #     "content": f"{student.firstname_en} {student.lastname_en}"
+                # },
+                # {
+                #     "x_position": "(PAGE_WIDTH - text_width - text_width_next) / 2",
+                #     "y_position": "((PAGE_HEIGHT - 29) / 2) - 70",
+                #     "color": (75 / 255, 123 / 255, 207 / 255),
+                #     "font": "Helvethaica",
+                #     "font_size": 27,
+                #     "content": "Completed the course of study "
+                # },
+                # {
+                #     "x_position": "(PAGE_WIDTH - text_width + text_width_prev) / 2",
+                #     "y_position": "((PAGE_HEIGHT - 29) / 2) - 70",
+                #     "color": (201 / 255, 158 / 255, 80 / 255),
+                #     "font": "Helvethaica",
+                #     "font_size": 27,
+                #     "content": f"{course.name_en}"
+                # },
+                # {
+                #     "x_position": "(PAGE_WIDTH - text_width) / 2",
+                #     "y_position": "((PAGE_HEIGHT - 23) / 2) - 85",
+                #     "color": (201 / 255, 158 / 255, 80 / 255),
+                #     "font": "Helvethaica",
+                #     "font_size": 22,
+                #     "content": f"Batch {certification.batch} between {format_eng_date(certification.start_date)} and {format_eng_date(certification.end_date)}"
+                # },
+                # {
+                #     "x_position": "(PAGE_WIDTH - text_width) / 2",
+                #     "y_position": "((PAGE_HEIGHT - 22) / 2) - 105",
+                #     "color": (201 / 255, 158 / 255, 80 / 255),
+                #     "font": "Helvethaica",
+                #     "font_size": 22,
+                #     "content": f"Given on {format_eng_date(certification.given_date)}"
+                # },
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
                     "y_position": "((PAGE_HEIGHT - 29) / 2) - 180",
@@ -157,7 +189,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": "School Director"
+                    "content": "Director of the School"
                 }
             ]
         },
@@ -275,7 +307,7 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 22,
-                    "content": "School Director"
+                    "content": "Director of the School"
                 }
             ],
         }
