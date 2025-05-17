@@ -16,3 +16,4 @@ PyPDF2~=3.0.1
 reportlab~=4.3.0
 PyJWT~=2.10.1
 firebase-admin~=6.7.0
+sentry-sdk~=2.28.0

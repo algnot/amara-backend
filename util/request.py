@@ -1,4 +1,6 @@
 from functools import wraps
+
+import sentry_sdk
 from flask import request, jsonify
 
 from model.system_config import SystemConfig
@@ -42,6 +44,7 @@ def handle_error(func):
 
             return func(*args, **kwargs)
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             error_message = str(e)
 
             return jsonify({
@@ -75,6 +78,7 @@ def handle_token(func):
             request.user = user
             request.token = payload
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return jsonify({"status": False, "message": str(e)}), 403
 
         return func(*args, **kwargs)
