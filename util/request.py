@@ -75,6 +75,10 @@ def handle_token(func):
         try:
             payload = UserTokens().verify_token(token)
             user = User().get_by_id(payload["sub"]["user_id"])
+            sentry_sdk.set_user({
+                "email": user.email,
+                "name": user.username,
+            })
             request.user = user
             request.token = payload
         except Exception as e:
