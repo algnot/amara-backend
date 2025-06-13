@@ -121,6 +121,11 @@ def handle_access_token(permission=False):
                 request.user = user
                 request.permissions = user_permissions
 
+                sentry_sdk.set_user({
+                    "email": user.email,
+                    "name": user.username,
+                })
+
                 if permission and user_permissions not in permission:
                     return jsonify({"status": False, "message": f"ผู้ใช้งานไม่มีสิทธิ์เข้าถึงกรุณาติดต่อผู้ดูแลระบบ ({', '.join(permission)})"}), 403
 
@@ -147,6 +152,12 @@ def handle_refresh_token(func):
             user_id = int(get_user_from_token(token, TokenType.REFRESH)["sub"].split(":")[0])
             user = User().get_by_id(int(user_id))
             request.user = user
+
+            sentry_sdk.set_user({
+                "email": user.email,
+                "name": user.username,
+            })
+
         except Exception as e:
             return jsonify({"status": False, "message": str(e)}), 403
 
