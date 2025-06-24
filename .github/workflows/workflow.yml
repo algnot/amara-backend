@@ -22,17 +22,17 @@ jobs:
       - name: Run Ruff Lint
         run: ruff check .
 
-#  Test:
-#    if: github.ref == 'refs/heads/main'
-#    needs: Lint
-#    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
-#    with:
-#      commit_sha: ${{ github.sha }}
-#    secrets: inherit
+  Test:
+    if: github.ref == 'refs/heads/main'
+    needs: Lint
+    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
+    with:
+      commit_sha: ${{ github.sha }}
+    secrets: inherit
 
   Deploy:
     if: github.ref == 'refs/heads/main'
-#    needs: Test
+    needs: Test
     runs-on: ubuntu-latest
     environment: tonkla-vm-deploy-env
 
