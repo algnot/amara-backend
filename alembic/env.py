@@ -27,6 +27,10 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+connect_args = {
+    "ssl": {}
+}
+
 def get_database_config():
     host = get_config("DATABASE_HOST", "localhost")
     port = get_config("DATABASE_PORT", "3306")
@@ -72,6 +76,7 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=connect_args,
     )
 
     with connectable.connect() as connection:
