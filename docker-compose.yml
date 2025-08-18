@@ -16,6 +16,7 @@ services:
       - ./app.py:/mnt/app.py
       - ./secret:/mnt/secret
       - ./static:/mnt/static
+      - ./secret/database.pem:/etc/ssl/certs/database.pem:ro
     environment:
       SERVICE_NAME: "amara-server"
 

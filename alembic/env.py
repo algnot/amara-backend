@@ -27,20 +27,21 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-ssl_ca_path = get_config("DATABASE_SSL_CA", "/mnt/secret/rsa_private_key.pem")
-if ssl_ca_path:
-    connect_args = {"ssl": {"ca": ssl_ca_path}}
-else:
-    connect_args = {"ssl": {}}
 
 def get_database_config():
+    ssl_ca_path = get_config("DATABASE_SSL_CA", "")
+    if ssl_ca_path:
+        connect_args = {"ssl_ca": ssl_ca_path}
+    else:
+        connect_args = {"ssl": {}}
+
     host = get_config("DATABASE_HOST", "localhost")
     port = get_config("DATABASE_PORT", "3306")
     user = get_config("DATABASE_USERNAME", "root")
     password = get_config("DATABASE_PASSWORD", "root")
     database = get_config("DATABASE_NAME", "tongla-hub")
 
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
+    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?ssl=VERIFY_IDENTITY&ssl_ca={ssl_ca_path}"
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -77,8 +78,7 @@ def run_migrations_online() -> None:
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-        connect_args=connect_args,
+        poolclass=pool.NullPool
     )
 
     with connectable.connect() as connection:
