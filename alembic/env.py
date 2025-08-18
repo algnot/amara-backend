@@ -27,9 +27,11 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-connect_args = {
-    "ssl": {}
-}
+ssl_ca_path = get_config("DATABASE_SSL_CA", "/mnt/secret/rsa_private_key.pem")
+if ssl_ca_path:
+    connect_args = {"ssl": {"ca": ssl_ca_path}}
+else:
+    connect_args = {"ssl": {}}
 
 def get_database_config():
     host = get_config("DATABASE_HOST", "localhost")
