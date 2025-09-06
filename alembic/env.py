@@ -30,10 +30,6 @@ target_metadata = Base.metadata
 
 def get_database_config():
     ssl_ca_path = get_config("DATABASE_SSL_CA", "")
-    if ssl_ca_path:
-        connect_args = {"ssl_ca": ssl_ca_path}
-    else:
-        connect_args = {"ssl": {}}
 
     host = get_config("DATABASE_HOST", "localhost")
     port = get_config("DATABASE_PORT", "3306")
@@ -41,7 +37,10 @@ def get_database_config():
     password = get_config("DATABASE_PASSWORD", "root")
     database = get_config("DATABASE_NAME", "tongla-hub")
 
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?ssl=VERIFY_IDENTITY&ssl_ca={ssl_ca_path}"
+    if ssl_ca_path:
+        return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?ssl=VERIFY_IDENTITY&ssl_ca={ssl_ca_path}"
+    else:
+        return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
