@@ -6,11 +6,43 @@ from model.course import Course
 from model.saleperson import SalePerson
 from model.student import Student
 from util.date import format_thai_date
-from util.request import handle_error
+from util.request import handle_error, handle_access_token
 
 get_student_app = Blueprint("get_student", __name__)
 
+def mask_name(name):
+    if not name:
+        return ""
+    if len(name) <= 2:
+        return name[0] + "*" * (len(name) - 1)
+    return name[:2] + "*" * (len(name) - 2)
+
+@get_student_app.route("/get/<string:student_id>/public", methods=["GET"])
+@handle_error
+def get_student_by_student_id_public(student_id):
+    student = Student().filter(filters=[("student_id", "=", student_id)], limit=1)
+
+    if not student:
+        raise Exception("ไม่พบข้อมูลนักเรียนดังกล่าวในระบบ")
+
+    sale_person = SalePerson().filter(filters=[("id", "=", student.sale_person_id)], limit=1)
+    sale_person_name = ""
+    if sale_person:
+        sale_person_name = sale_person.firstname + " " + sale_person.lastname
+
+    return jsonify({
+        "id": student.id,
+        "student_id": student.student_id,
+        "firstname_th": mask_name(student.firstname_th),
+        "lastname_th": mask_name(student.lastname_th),
+        "firstname_en": mask_name(student.firstname_en),
+        "lastname_en": mask_name(student.lastname_en),
+        "sale_person": sale_person_name,
+        "user_id": student.user_id,
+    })
+
 @get_student_app.route("/get/<string:student_id>", methods=["GET"])
+@handle_access_token()
 @handle_error
 def get_student_by_student_id(student_id):
     user_email = request.user.email
