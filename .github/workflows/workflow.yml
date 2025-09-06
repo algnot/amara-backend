@@ -32,7 +32,7 @@ jobs:
 
   Deploy:
     if: github.ref == 'refs/heads/main'
-    needs: Lint
+    needs: Test
     runs-on: ubuntu-latest
     environment: tonkla-vm-deploy-env
 
