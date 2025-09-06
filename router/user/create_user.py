@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
 from util.encryptor import encrypt
@@ -13,6 +14,7 @@ create_user_app = Blueprint("create_user", __name__)
 @handle_error
 def create_user():
     user = request.user
+    user_email = user.email
     payload = request.get_json()
 
     if user.role not in [RoleType.SUPER_ADMIN, RoleType.ADMIN]:
@@ -37,6 +39,15 @@ def create_user():
                 "user_id": user.id,
             })
             permission_list.append(create_permission.permission_id)
+
+    ActivityLogs().create_activity_log("user", user_created.id, f"""
+{user_email} ได้ทำการสร้างบัญชี <br/>
+<ul>
+  <li>ชื่อผู้ใช้: <b>{user_created.username}</b></li>
+  <li>อีเมล: <b>{user_created.email}</b></li>
+  <li>บทบาท: <b>{str(user_created.role.name)}</b></li>
+</ul>
+""")
 
     return jsonify({
         "user_id": user_created.id,

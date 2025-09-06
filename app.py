@@ -1,6 +1,8 @@
 import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
+
+from router.activity_logs.activity_logs import activity_log_app
 from router.auth.auth import auth_app
 from router.certificate.certificate import certificate_app
 from router.course.course import course_app
@@ -36,6 +38,7 @@ app.register_blueprint(certificate_app)
 app.register_blueprint(export_app)
 app.register_blueprint(permission_app)
 app.register_blueprint(user_app)
+app.register_blueprint(activity_log_app)
 
 @app.route("/_hc", methods=["GET"])
 def _hc():

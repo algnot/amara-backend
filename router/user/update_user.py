@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request
+
+from model.activity_logs import ActivityLogs
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
 from util.request import handle_access_token, validate_request, handle_error
@@ -55,6 +57,17 @@ def update_user_by_id(user_id):
         permission_list = [up.permission_id for up in user_to_permission]
 
     user_updated = User().filter(filters=[("id", "=", user_id)], limit=1)
+
+    for user_key in existing_user.keys():
+        print(user_key)
+
+    ActivityLogs().create_activity_log("user", user_updated.id, f"""
+    {user.email} ได้ทำการอัพเดทข้อมูลบัญชี <br/>
+    <ul>
+      <li>ชื่อผู้ใช้: <b>{user_updated.username}</b></li>
+      <li>บทบาท: <b>{str(user_updated.role.name)}</b></li>
+    </ul>
+    """)
 
     return jsonify({
         "user_id": user_updated.id,
