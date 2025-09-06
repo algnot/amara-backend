@@ -13,6 +13,11 @@ class ActivityLogs(Base):
     created_at = Column(TIMESTAMP, default=datetime.now(timezone.utc), nullable=False)
 
     def create_activity_log(self, topic, ref_id, content):
+        find_duplicate_log = self.filter(filters=[("topic", "=" ,topic), ("ref_id", "=", ref_id)], order_by=[("id", "desc")], limit=1, alway_list=True)
+
+        if len(find_duplicate_log) > 0 and content == find_duplicate_log[0].content:
+            return
+
         return super().create({
             "topic": topic,
             "ref_id": ref_id,
