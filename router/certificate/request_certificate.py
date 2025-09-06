@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.certificate import Certificate
 from util.request import handle_error, validate_request
 
@@ -24,6 +25,16 @@ def request_certificate():
         "student_id": payload["student_id"],
         "batch": "draft"
     })
+
+    ActivityLogs().create_activity_log("certificate", created_certificate.id, f"""
+        สร้างคำขอใบประกาศ {created_certificate.certificate_number} <br/>
+        <ul>
+          <li>วันที่เริ่มเรียน: <b>{created_certificate.start_date}</b></li>
+          <li>วันที่เรียนจบ: <b>{created_certificate.end_date}</b></li>
+          <li>วันที่มอบใบประกาศ: <b>{created_certificate.given_date}</b></li>
+          <li>รุ่นที่: <b>{created_certificate.batch}</b></li>
+        </ul>
+    """)
 
     return jsonify({
         "id": created_certificate.id,

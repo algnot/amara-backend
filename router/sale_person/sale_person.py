@@ -1,6 +1,6 @@
-
 from flask import Blueprint, request, jsonify
 
+from model.activity_logs import ActivityLogs
 from model.saleperson import SalePerson
 from util.request import handle_error, validate_request, handle_access_token
 
@@ -11,6 +11,7 @@ sale_person_app = Blueprint("sale_person", __name__, url_prefix="/sale-person")
 @handle_access_token()
 @handle_error
 def update_sale_person_by_id(sale_person_id):
+    user_email = request.user.email
     payload = request.get_json()
     sale_person = SalePerson().filter(filters=[("id", "=", sale_person_id)], limit=1)
 
@@ -26,6 +27,14 @@ def update_sale_person_by_id(sale_person_id):
         "lastname": payload["lastname"],
         "reference_code": payload["code"],
     })
+
+    ActivityLogs().create_activity_log("sale-person", updated_sale_person.id, f"""
+            {user_email} ได้ทำการอัพเดทข้อมูลพนักงานขาย
+            <ul>
+              <li>ชื่อ: <b>{updated_sale_person.firstname} {updated_sale_person.lastname}</b></li>
+              <li>รหัสผู้ขาย: <b>{updated_sale_person.reference_code}</b></li>
+            </ul>
+            """)
 
     return jsonify({
         "id" : updated_sale_person.id,
@@ -51,8 +60,10 @@ def get_sale_person_by_id(sale_person_id):
 
 @sale_person_app.route("/new", methods=["POST"])
 @validate_request(["firstname", "lastname", "code"])
+@handle_access_token()
 @handle_error
 def add_new_sale_person():
+    user_email = request.user.email
     payload = request.get_json()
 
     sale_person = SalePerson().filter(filters=[("reference_code", "=", payload["code"])], limit=1)
@@ -65,6 +76,14 @@ def add_new_sale_person():
         "lastname": payload["lastname"],
         "reference_code": payload["code"],
     })
+
+    ActivityLogs().create_activity_log("sale-person", created_sale_person.id, f"""
+        {user_email} ได้ทำการสร้างพนักงานขาย
+        <ul>
+          <li>ชื่อ: <b>{created_sale_person.firstname} {created_sale_person.lastname}</b></li>
+          <li>รหัสผู้ขาย: <b>{created_sale_person.reference_code}</b></li>
+        </ul>
+        """)
 
     return jsonify({
         "id": created_sale_person.id,

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.saleperson import SalePerson
 from model.student import Student
 from model.users import User
@@ -12,6 +13,7 @@ update_student_app = Blueprint("update_student", __name__)
 @handle_access_token()
 @handle_error
 def update_student(student_id):
+    user_email = request.user.email
     payload = request.get_json()
     student = Student().filter(filters=[("student_id", "=", student_id)], limit=1)
 
@@ -36,6 +38,14 @@ def update_student(student_id):
     sale_person_name = ""
     if sale_person:
         sale_person_name = sale_person.firstname + " " + sale_person.lastname
+
+    ActivityLogs().create_activity_log("student", student.id, f"""
+            {user_email} ได้ทำการอัพเดทข้อมูลนักเรียน {student.student_id}<br/>
+            <ul>
+              <li>ชื่อ (ไทย): <b>{student.firstname_th} {student.lastname_th}</b></li>
+              <li>ชื่อ (อังกฤษ): <b>{student.firstname_en} {student.lastname_en}</b></li>
+            </ul>
+            """)
 
     return jsonify({
         "id": updated_student.id,

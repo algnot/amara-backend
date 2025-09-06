@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.course import Course
 from util.request import handle_error, validate_request, handle_access_token
 
@@ -10,6 +11,7 @@ update_course_app = Blueprint("update_course", __name__)
 @handle_access_token()
 @handle_error
 def update_course(course_id):
+    user_email = request.user.email
     payload = request.get_json()
 
     existing_course = Course().filter(filters=[("course_code", "=", payload["course_code"])], limit=1)
@@ -26,6 +28,16 @@ def update_course(course_id):
         "name_en": payload["name_en"],
         "certificate_version": int(payload["version"])
     })
+
+    ActivityLogs().create_activity_log("course", course.id, f"""
+    {user_email} ได้ทำการอัพเดทหลักสูตร
+    <ul>
+      <li>รหัสวิชา: <b>{updated_course.course_code}</b></li>
+      <li>ชื่อหลักสูตร (ไทย): <b>{updated_course.name_th}</b></li>
+      <li>ชื่อหลักสูตร (อังกฤษ): <b>{updated_course.name_en}</b></li>
+      <li>Version ใบประกาศ: <b>{updated_course.certificate_version}</b></li>
+    </ul>
+    """)
 
     return jsonify({
         "id": updated_course.id,

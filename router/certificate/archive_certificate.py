@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.certificate import Certificate
 from util.request import handle_error, handle_access_token
 
@@ -9,6 +10,7 @@ delete_certification_app = Blueprint("delete_certification", __name__)
 @handle_access_token()
 @handle_error
 def get_certification(certificate_number):
+    user_email = request.user.email
     existing_certificate = Certificate().filter(filters=[("certificate_number", "=", certificate_number)], limit=1)
     if not existing_certificate:
         raise Exception("ไม่พบใบประกาศนี้ในระบบ")
@@ -16,6 +18,8 @@ def get_certification(certificate_number):
     updated_certificate = existing_certificate.update({
         "archived": True
     })
+
+    ActivityLogs().create_activity_log("certificate", updated_certificate.id, f"{user_email} ได้ทำการลบใบประกาศ {updated_certificate.certificate_number}")
 
     return jsonify({
         "id": updated_certificate.id,

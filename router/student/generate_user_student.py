@@ -1,6 +1,8 @@
 import random
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+
+from model.activity_logs import ActivityLogs
 from model.student import Student
 from model.users import User, RoleType
 from util.request import handle_error, handle_access_token
@@ -11,6 +13,7 @@ generate_user_student_app = Blueprint("generate_user_student", __name__)
 @handle_access_token(permission=["modify-student-data"])
 @handle_error
 def generate_user_student(student_id):
+    user_email = request.user.email
     student = Student().filter(filters=[("student_id", "=", student_id)], limit=1)
 
     if not student:
@@ -27,10 +30,12 @@ def generate_user_student(student_id):
         student.update({
             "user_id": user.id,
         })
+        ActivityLogs().create_activity_log("student", student.id, f"{user_email} ได้ทำการสร้างบัญชีของนักเรียน")
     else:
         user = User().filter(filters=[("id", "=", student.user_id)], limit=1)
         user.role = RoleType.STUDENT
         user.change_password(random_password)
+        ActivityLogs().create_activity_log("student", student.id, f"{user_email} ได้ทำการ reset รหัสผ่านบัญชีของนักเรียน")
 
     return jsonify({
         "login": user.email,

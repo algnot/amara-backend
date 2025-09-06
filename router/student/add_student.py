@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.saleperson import SalePerson
 from model.student import Student
 from util.encryptor import encrypt
@@ -33,6 +34,14 @@ def add_student():
         "lastname_en": payload["lastname_en"],
         "sale_person_id": sale_person.id,
     })
+
+    ActivityLogs().create_activity_log("student", student.id, f"""
+        สร้างบัญชีนักเรียน {student.student_id}<br/>
+        <ul>
+          <li>ชื่อ (ไทย): <b>{student.firstname_th} {student.lastname_th}</b></li>
+          <li>ชื่อ (อังกฤษ): <b>{student.firstname_en} {student.lastname_en}</b></li>
+        </ul>
+        """)
 
     return jsonify({
         "id": student.id,

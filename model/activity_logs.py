@@ -17,6 +17,7 @@ class ActivityLogs(Base):
             "topic": topic,
             "ref_id": ref_id,
             "content": content,
+            "created_at": datetime.now(timezone.utc),
         })
 
     def get_activity_logs(self, topic, ref_id):
