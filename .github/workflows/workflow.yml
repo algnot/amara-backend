@@ -66,7 +66,6 @@ jobs:
             DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
             DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
             DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-            DATABASE_SSL_CA=/etc/ssl/certs/database.pem
             SENTRY_URL=${{ secrets.SENTRY_URL }}
 
             JWT_SECRET=${{ secrets.JWT_SECRET }}
