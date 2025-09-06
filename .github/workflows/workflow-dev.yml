@@ -29,67 +29,42 @@ jobs:
     environment: tonkla-vm-deploy-env
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script_stop: true
+          debug: true
+          command_timeout: 200m
+          script: |
+            cd service/dev/amara-backend
+            git fetch --all 
+            git reset --hard origin/dev 
 
-      - name: Install Cloudflared
-        run: |
-          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
-          chmod +x cloudflared
-          sudo mv cloudflared /usr/local/bin/
+            cat > .env << EOF
+            FLASK_RUN_PORT=9000
+            FLASK_RUN_HOST=0.0.0.0
+            FLASK_RUN_DEBUG=true
+  
+            APP_PORT=19002
+            APP_VERSION=${{ github.sha }}
+            APP_ENV=development
+  
+            DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}
+            DATABASE_PORT=${{ secrets.DEV_DATABASE_PORT }}
+            DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}
+            DATABASE_PASSWORD=${{ secrets.DEV_DATABASE_PASSWORD }}
+            DATABASE_NAME=${{ secrets.DEV_DATABASE_NAME }}
+            SENTRY_URL=${{ secrets.DEV_SENTRY_URL }}
+  
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOF
+            
+            docker system prune
+            docker image prune -a -f
+            docker compose -p amara-dev up --build -d
 
-      - name: Authenticate Cloudflare Tunnel
-        run: |
-          mkdir -p ~/.cloudflared
-          echo "${{ secrets.CLOUDFLARED_TUNNEL_CREDENTIALS }}" > ~/.cloudflared/credentials.json
-          echo "${{ secrets.CLOUDFLARED_TUNNEL_SECRETKEY }}" > ~/.cloudflared/cert.pem
-
-      - name: Configure SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.CLOUDFLARED_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-      - name: Sync Environment
-        run: |
-          cat > .env << EOF
-          FLASK_RUN_PORT=9000
-          FLASK_RUN_HOST=0.0.0.0
-          FLASK_RUN_DEBUG=true
-          
-          APP_PORT=19002
-          APP_VERSION=${{ github.sha }}
-          APP_ENV=development
-          
-          DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}
-          DATABASE_PORT=${{ secrets.DEV_DATABASE_PORT }}
-          DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}
-          DATABASE_PASSWORD=${{ secrets.DEV_DATABASE_PASSWORD }}
-          DATABASE_NAME=${{ secrets.DEV_DATABASE_NAME }}
-          SENTRY_URL=${{ secrets.DEV_SENTRY_URL }}
-          
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          EOF
-          
-          cat ./.env | ssh -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.CLOUDFLARED_SSH_HOST }}" \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            ${{ secrets.CLOUDFLARED_SSH_USER }}@${{ secrets.CLOUDFLARED_SSH_HOST }} 'cat > ~/server/dev/amara-backend/.env'
-
-      - name: Access Server
-        run: |
-          ssh -tt -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.CLOUDFLARED_SSH_HOST }}" \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              ${{ secrets.CLOUDFLARED_SSH_USER }}@${{ secrets.CLOUDFLARED_SSH_HOST }} << EOF
-          
-          set -e
-          cd server/dev/amara-backend/
-          git fetch --all 
-          git reset --hard origin/dev
-          
-          docker system prune
-          docker image prune -a -f
-          docker compose -p amara-dev up --build -d
-          
-          exit
+            echo "Deploy completed!"
