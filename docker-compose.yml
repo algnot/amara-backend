@@ -19,7 +19,10 @@ services:
       - ./secret/database.pem:/etc/ssl/certs/database.pem:ro
     environment:
       SERVICE_NAME: "amara-server"
+    networks:
+      - shared-db
 
 networks:
-  default:
-    driver: bridge
+  shared-db:
+    external: true
+    name: shared-db
