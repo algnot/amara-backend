@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.certificate import Certificate
 from model.course import Course
 from model.saleperson import SalePerson
@@ -12,6 +13,7 @@ get_certification_app = Blueprint("get_certification", __name__)
 @handle_access_token()
 @handle_error
 def get_certification(certification_number):
+    user_email = request.user.email
     certification = Certificate().filter(filters=[("certificate_number", "=", certification_number)], limit=1)
 
     if not certification:
@@ -29,6 +31,8 @@ def get_certification(certification_number):
     sale_person_name = ""
     if sale_person:
         sale_person_name = sale_person.firstname + " " + sale_person.lastname
+
+    ActivityLogs().create_activity_log("certificate", certification.id, f"{user_email} ดูข้อมูลใบประกาศ")
 
     return jsonify({
         "id": certification.id,

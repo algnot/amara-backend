@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
 from util.request import handle_error, handle_access_token
@@ -29,6 +30,8 @@ def get_user_by_id(user_id):
     else:
         user_to_permission = UserToPermission().filter(filters=[("user_id", "=", user_id)], alway_list=True)
         permission_list = [up.permission_id for up in user_to_permission]
+
+    ActivityLogs().create_activity_log("user", existing_user.id, f"{user.email} ดูข้อมูลผู้ใช้")
 
     return jsonify({
         "user_id": existing_user.id,

@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
+from model.activity_logs import ActivityLogs
 from model.certificate import Certificate
 from model.course import Course
 from model.saleperson import SalePerson
@@ -12,6 +13,7 @@ get_student_app = Blueprint("get_student", __name__)
 @get_student_app.route("/get/<string:student_id>", methods=["GET"])
 @handle_error
 def get_student_by_student_id(student_id):
+    user_email = request.user.email
     student = Student().filter(filters=[("student_id", "=", student_id)], limit=1)
 
     if not student:
@@ -47,6 +49,8 @@ def get_student_by_student_id(student_id):
             "end_date": format_thai_date(certificate.end_date),
             "given_date": format_thai_date(certificate.given_date),
         })
+
+    ActivityLogs().create_activity_log("student", student.id, f"{user_email} ดูข้อมูลนักเรียน")
 
     return jsonify({
         "id": student.id,
