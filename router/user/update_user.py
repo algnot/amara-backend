@@ -58,9 +58,6 @@ def update_user_by_id(user_id):
 
     user_updated = User().filter(filters=[("id", "=", user_id)], limit=1)
 
-    for user_key in existing_user.keys():
-        print(user_key)
-
     ActivityLogs().create_activity_log("user", user_updated.id, f"""
     {user.email} ได้ทำการอัพเดทข้อมูลบัญชี <br/>
     <ul>
