@@ -41,6 +41,7 @@ def get_certification(certification_number):
         "end_date": certification.end_date,
         "batch": certification.batch,
         "given_date": certification.given_date,
+        "archived": certification.archived,
         "course": {
             "id": course.id,
             "course_code": course.course_code,
