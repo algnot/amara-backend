@@ -34,6 +34,17 @@ def get_certification(certification_number):
 
     ActivityLogs().create_activity_log("certificate", certification.id, f"{user_email} ดูข้อมูลใบประกาศ")
 
+    additional_course = {}
+    if certification.additional_course_id:
+        additional_course = Course().filter(filters=[("id", "=", certification.additional_course_id)], limit=1)
+        additional_course = {
+            "id": additional_course.id,
+            "course_code": additional_course.course_code,
+            "name_th": additional_course.name_th,
+            "name_en": additional_course.name_en,
+            "version": str(float(additional_course.certificate_version)),
+        }
+
     return jsonify({
         "id": certification.id,
         "certificate_number": certification.certificate_number,
@@ -49,6 +60,7 @@ def get_certification(certification_number):
             "name_en": course.name_en,
             "version": str(float(course.certificate_version)),
         },
+        "additional_course": additional_course,
         "student": {
             "id": student.id,
             "student_id": student.student_id,

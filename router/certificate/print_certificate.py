@@ -25,7 +25,19 @@ pdfmetrics.registerFont(TTFont("Kodchiang", FONT_PATH))
 
 print_certification_app = Blueprint("print_certification", __name__)
 
-def get_pdf_mapping(version, language, certification, course, student):
+def get_pdf_mapping(version, language, certification, course, student, additional_course=None):
+    additional_course_info = {}
+
+    if additional_course:
+        additional_course_info = {
+            "x_position": "(PAGE_WIDTH - text_width) / 2",
+            "y_position": "((PAGE_HEIGHT - 29) / 2) - 90",
+            "color": (201 / 255, 158 / 255, 80 / 255),
+            "font": "Helvethaica",
+            "font_size": 27,
+            "content": f"{additional_course.name_en}"
+        },
+
     fill_data = {
         "1.0": {
             "th": [
@@ -127,9 +139,10 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "font_size": 27,
                     "content": f"{course.name_en}"
                 },
+                *additional_course_info,
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
-                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102" if additional_course is None else "((PAGE_HEIGHT - 29) / 2) - 115",
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
@@ -245,9 +258,10 @@ def get_pdf_mapping(version, language, certification, course, student):
                     "font_size": 27,
                     "content": f"{course.name_en}"
                 },
+                *additional_course_info,
                 {
                     "x_position": "(PAGE_WIDTH - text_width) / 2",
-                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102",
+                    "y_position": "((PAGE_HEIGHT - 29) / 2) - 102" if additional_course is None else "((PAGE_HEIGHT - 29) / 2) - 115",
                     "color": (201 / 255, 158 / 255, 80 / 255),
                     "font": "Helvethaica",
                     "font_size": 27,
@@ -290,11 +304,15 @@ def print_certification(language, version, certification_number):
     if not course:
         raise Exception("ไม่พบคอร์สเรียนนี้ในระบบ")
 
+    additional_course = Course().filter(filters=[("id", "=", certification.additional_course_id)], limit=1)
+    if not additional_course:
+        additional_course = None
+
     student = Student().filter(filters=[("id", "=", certification.student_id)], limit=1)
     if not student:
         raise Exception("ไม่พบข้อมูลนักเรียนดังกล่าวในระบบ")
 
-    mapping = get_pdf_mapping(version, language, certification, course, student)
+    mapping = get_pdf_mapping(version, language, certification, course, student, additional_course)
     pdf_path = f"{file_path}/../../static/certificate/certificate-{version}-{language}-fill.pdf"
 
     output_pdf_path = f"{pdf_path}_filled.pdf"

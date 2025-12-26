@@ -6,7 +6,6 @@ from sqlalchemy import pool
 
 from alembic import context
 from util.config import get_config
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -35,7 +34,7 @@ def get_database_config():
     port = get_config("DATABASE_PORT", "3306")
     user = get_config("DATABASE_USERNAME", "root")
     password = get_config("DATABASE_PASSWORD", "root")
-    database = get_config("DATABASE_NAME", "tongla-hub")
+    database = get_config("DATABASE_NAME", "amara")
 
     if ssl_ca_path:
         return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}?ssl=VERIFY_IDENTITY&ssl_ca={ssl_ca_path}"

@@ -18,11 +18,16 @@ def update_course(certificate_number):
     if not existing_certificate:
         raise Exception("ไม่พบใบประกาศนี้ในระบบ")
 
+    additional_course_id = payload.get("additional_course_id")
+    if additional_course_id == 0:
+        payload["additional_course_id"] = None
+
     updated_certificate = existing_certificate.update({
         "start_date": payload["start_date"],
         "end_date": payload["end_date"],
         "given_date": payload["given_date"],
-        "batch": payload["batch"]
+        "batch": payload["batch"],
+        "additional_course_id": additional_course_id
     })
 
     ActivityLogs().create_activity_log("certificate", updated_certificate.id, f"""

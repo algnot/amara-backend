@@ -17,6 +17,8 @@ class Certificate(Base):
     course_id = Column(Integer, ForeignKey("course.id"), nullable=False)
     course = relationship("Course")
 
+    additional_course_id = Column(Integer, nullable=True)
+
     student_id = Column(Integer, ForeignKey("student.id"), nullable=False)
     student = relationship("Student")
     archived = Column(Boolean, default=False)
