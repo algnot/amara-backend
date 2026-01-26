@@ -1,8 +1,7 @@
 FROM python:3.10
 
-WORKDIR /mnt
+WORKDIR /app
 COPY . .
-COPY .env /mnt/.env
 
 RUN apt-get update && apt-get install -y default-mysql-client pdftk-java
 

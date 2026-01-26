@@ -7,11 +7,9 @@
 #echo "MySQL is up and running!"
 
 if [ "$SERVICE_NAME" = "amara-server" ]; then
-    echo "Running Alembic migrations..."
-    alembic upgrade head
     echo "Starting Flask application..."
     exec python -m flask run
 else
-    echo "Unknown service name: $SERVICE_NAME"
-    exit 1
+    echo "Running Alembic migrations..."
+    alembic upgrade head
 fi
