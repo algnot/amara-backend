@@ -22,57 +22,81 @@ jobs:
       - name: Run Ruff Lint
         run: ruff check .
 
-  Test:
-    if: github.ref == 'refs/heads/main'
-    needs: Lint
-    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
-    with:
-      commit_sha: ${{ github.sha }}
-    secrets: inherit
+#  Test:
+#    if: github.ref == 'refs/heads/main'
+#    needs: Lint
+#    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
+#    with:
+#      commit_sha: ${{ github.sha }}
+#    secrets: inherit
 
-  Deploy:
+  Build:
     if: github.ref == 'refs/heads/main'
-    needs: Test
     runs-on: ubuntu-latest
-    environment: tonkla-vm-deploy-env
+    needs: Lint
 
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script_stop: true
-          debug: true
-          command_timeout: 200m
-          script: |
-            cd service/prod/amara-backend
-            git fetch --all 
-            git reset --hard origin/main 
 
-            cat > .env << EOF
-            FLASK_RUN_PORT=9000
-            FLASK_RUN_HOST=0.0.0.0
-            FLASK_RUN_DEBUG=true
+      - name: Build image
+        run: |
+          docker build -t ghcr.io/algnot/amara-backend:${{ github.sha }} .
 
-            APP_PORT=9002
-            APP_VERSION=${{ github.sha }}
-            APP_ENV=production
+      - name: Login to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-            SENTRY_URL=${{ secrets.SENTRY_URL }}
+      - name: Push image
+        run: |
+          docker push ghcr.io/algnot/amara-backend:${{ github.sha }}
 
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            EOF
+      - name: Tag latest
+        run: |
+          docker tag ghcr.io/algnot/amara-backend:${{ github.sha }} ghcr.io/algnot/amara-backend:latest
+          docker push ghcr.io/algnot/amara-backend:latest
 
-            docker system prune
-            docker image prune -a -f
-            docker compose -p amara-prod up --build -d
-
-            echo "Deploy completed!"
+#  Deploy:
+#    if: github.ref == 'refs/heads/main'
+#    needs: Test
+#    runs-on: ubuntu-latest
+#    environment: tonkla-vm-deploy-env
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Deploy
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_IP }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SERVER_SSH_KEY }}
+#          script_stop: true
+#          debug: true
+#          command_timeout: 200m
+#          script: |
+#            cd service/prod/amara-backend
+#            git fetch --all
+#            git reset --hard origin/main
+#
+#            cat > .env << EOF
+#            FLASK_RUN_PORT=9000
+#            FLASK_RUN_HOST=0.0.0.0
+#            FLASK_RUN_DEBUG=true
+#
+#            APP_PORT=9002
+#            APP_VERSION=${{ github.sha }}
+#            APP_ENV=production
+#
+#            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+#            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+#            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+#            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+#            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+#            SENTRY_URL=${{ secrets.SENTRY_URL }}
+#
+#            JWT_SECRET=${{ secrets.JWT_SECRET }}
+#            EOF
+#
+#            docker system prune
+#            docker image prune -a -f
+#            docker compose -p amara-prod up --build -d
+#
+#            echo "Deploy completed!"
