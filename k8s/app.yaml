@@ -17,7 +17,7 @@ spec:
         - name: ghcr-pull
       containers:
         - name: app
-          image: ghcr.io/algnot/amara-backend-backend:__IMAGE_TAG__
+          image: ghcr.io/algnot/amara-backend:__IMAGE_TAG__
           volumeMounts:
             - name: amara-secrets-vol
               mountPath: /app/secret
