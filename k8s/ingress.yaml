@@ -1,0 +1,42 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: amara-api-tls
+  namespace: tongla
+spec:
+  secretName: amara-api-tls
+  dnsNames:
+    - amara-api.tongla.dev
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: amara-backend
+  namespace: tongla
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "*"
+    nginx.ingress.kubernetes.io/cors-max-age: "86400"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - amara-api.tongla.dev
+      secretName: amara-api-tls
+  rules:
+    - host: amara-api.tongla.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: amara-backend
+                port:
+                  number: 80

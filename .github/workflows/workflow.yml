@@ -54,49 +54,57 @@ jobs:
           docker tag ghcr.io/algnot/amara-backend:${{ github.sha }} ghcr.io/algnot/amara-backend:latest
           docker push ghcr.io/algnot/amara-backend:latest
 
-#  Deploy:
-#    if: github.ref == 'refs/heads/main'
-#    needs: Test
-#    runs-on: ubuntu-latest
-#    environment: tonkla-vm-deploy-env
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Deploy
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SERVER_IP }}
-#          username: ${{ secrets.SERVER_USERNAME }}
-#          key: ${{ secrets.SERVER_SSH_KEY }}
-#          script_stop: true
-#          debug: true
-#          command_timeout: 200m
-#          script: |
-#            cd service/prod/amara-backend
-#            git fetch --all
-#            git reset --hard origin/main
-#
-#            cat > .env << EOF
-#            FLASK_RUN_PORT=9000
-#            FLASK_RUN_HOST=0.0.0.0
-#            FLASK_RUN_DEBUG=true
-#
-#            APP_PORT=9002
-#            APP_VERSION=${{ github.sha }}
-#            APP_ENV=production
-#
-#            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-#            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-#            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-#            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-#            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-#            SENTRY_URL=${{ secrets.SENTRY_URL }}
-#
-#            JWT_SECRET=${{ secrets.JWT_SECRET }}
-#            EOF
-#
-#            docker system prune
-#            docker image prune -a -f
-#            docker compose -p amara-prod up --build -d
-#
-#            echo "Deploy completed!"
+  Deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: Build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Render manifests
+        run: |
+          set -e
+          TAG=${{ github.sha }}
+          mkdir -p .rendered
+          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/app.yaml > .rendered/app.yaml
+          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/job.yaml > .rendered/migrate-job.yaml
+          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/ingress.yaml > .rendered/ingress.yaml
+
+      - name: Encode manifests as base64
+        run: |
+          set -e
+          echo "APP_YAML_B64=$(base64 -w0 .rendered/app.yaml)" >> $GITHUB_ENV
+          echo "MIGRATE_YAML_B64=$(base64 -w0 .rendered/job.yaml)" >> $GITHUB_ENV
+          echo "INGRESS_YAML_B64=$(base64 -w0 .rendered/ingress.yaml)" >> $GITHUB_ENV
+
+      - name: Apply to microk8s
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          command_timeout: 30m
+          envs: APP_YAML_B64,MIGRATE_YAML_B64,INGRESS_YAML_B64
+          script: |
+            set -e
+            TAG=${{ github.sha }}
+            
+            echo "$MIGRATE_YAML_B64" | base64 -d > /tmp/amara-prod-job.yaml
+            echo "$APP_YAML_B64" | base64 -d > /tmp/amara-prod-app.yaml
+            echo "$INGRESS_YAML_B64" | base64 -d > /tmp/amara-prod-ingress.yaml
+            
+            wc -c /tmp/amara-prod-job.yaml /tmp/amara-prod-app.yaml /tmp/amara-prod-ingress.yaml
+            head -n 5 /tmp/amara-prod-job.yaml
+            head -n 5 /tmp/amara-prod-app.yaml
+            head -n 5 /tmp/amara-prod-ingress.yaml
+            
+            microk8s kubectl apply -f /tmp/amara-prod-job.yaml
+            microk8s kubectl -n tongla wait --for=condition=complete job/amara-migrate-${TAG} --timeout=20m
+
+            microk8s kubectl apply -f /tmp/amara-prod-app.yaml
+            microk8s kubectl -n tongla rollout status deployment/amara-backend --timeout=5m
+
+            microk8s kubectl apply -f /tmp/amara-prod-ingress.yaml
+            microk8s kubectl -n tongla describe ingress amara-backend

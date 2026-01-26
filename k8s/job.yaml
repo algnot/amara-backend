@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: amara-migrate-__TAG__
+  namespace: tongla
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 1200
+  activeDeadlineSeconds: 1200
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: migrate
+          image: ghcr.io/algnot/amara-backend:__IMAGE_TAG__
+          volumeMounts:
+            - name: amara-secrets-vol
+              mountPath: /app/secret
+          envFrom:
+            - configMapRef:
+                name: amara-prod-config
+            - secretRef:
+                name: amara-prod-secret
+          env:
+            - name: SERVICE_NAME
+              value: "migrater"
+      volumes:
+        - name: amara-secrets-vol
+          secret:
+            secretName: amara-secrets

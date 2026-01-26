@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amara-backend
+  namespace: tongla
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: amara-backend
+  template:
+    metadata:
+      labels:
+        app: amara-backend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: app
+          image: ghcr.io/algnot/amara-backend-backend:__IMAGE_TAG__
+          volumeMounts:
+            - name: amara-secrets-vol
+              mountPath: /app/secret
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: amara-prod-config
+            - secretRef:
+                name: amara-prod-secret
+          env:
+            - name: SERVICE_NAME
+              value: "amara-server"
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      volumes:
+        - name: amara-secrets-vol
+          secret:
+            secretName: amara-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amara-backend
+  namespace: tongla
+spec:
+  type: ClusterIP
+  selector:
+    app: amara-backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 9000
