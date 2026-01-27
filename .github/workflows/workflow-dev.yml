@@ -83,7 +83,7 @@ jobs:
           envs: APP_YAML_B64,MIGRATE_YAML_B64,INGRESS_YAML_B64
           script: |
             set -e
-            TAG=${{ github.sha }}
+            TAG=dev-${{ github.sha }}
             
             echo "$MIGRATE_YAML_B64" | base64 -d > /tmp/amara-dev-job.yaml
             echo "$APP_YAML_B64" | base64 -d > /tmp/amara-dev-app.yaml
