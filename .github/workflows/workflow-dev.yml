@@ -22,49 +22,83 @@ jobs:
       - name: Run Ruff Lint
         run: ruff check .
 
-  Deploy:
+  Build:
     if: github.ref == 'refs/heads/dev'
-    needs: Lint
     runs-on: ubuntu-latest
-    environment: tonkla-vm-deploy-env
+    needs: Lint
 
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy
+
+      - name: Build image
+        run: |
+          docker build -t ghcr.io/algnot/amara-backend:dev-${{ github.sha }} .
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/algnot/amara-backend:dev-${{ github.sha }}
+
+      - name: Tag latest
+        run: |
+          docker tag ghcr.io/algnot/amara-backend:dev-${{ github.sha }} ghcr.io/algnot/amara-backend:dev
+          docker push ghcr.io/algnot/amara-backend:dev
+
+  Deploy:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    needs: Build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Render manifests
+        run: |
+          set -e
+          TAG=dev-${{ github.sha }}
+          HOST=amara-api-dev.tongla.dev
+          NS=tongla-dev
+          mkdir -p .rendered
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/app.yaml > .rendered/app.yaml
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/job.yaml > .rendered/job.yaml
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/ingress.yaml > .rendered/ingress.yaml
+
+      - name: Encode manifests as base64
+        run: |
+          set -e
+          echo "APP_YAML_B64=$(base64 -w0 .rendered/app.yaml)" >> $GITHUB_ENV
+          echo "MIGRATE_YAML_B64=$(base64 -w0 .rendered/job.yaml)" >> $GITHUB_ENV
+          echo "INGRESS_YAML_B64=$(base64 -w0 .rendered/ingress.yaml)" >> $GITHUB_ENV
+
+      - name: Apply to microk8s
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          script_stop: true
-          debug: true
-          command_timeout: 200m
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          command_timeout: 30m
+          envs: APP_YAML_B64,MIGRATE_YAML_B64,INGRESS_YAML_B64
           script: |
-            cd service/dev/amara-backend
-            git fetch --all 
-            git reset --hard origin/dev 
-
-            cat > .env << EOF
-            FLASK_RUN_PORT=9000
-            FLASK_RUN_HOST=0.0.0.0
-            FLASK_RUN_DEBUG=true
-  
-            APP_PORT=19002
-            APP_VERSION=${{ github.sha }}
-            APP_ENV=development
-  
-            DATABASE_HOST=${{ secrets.DEV_DATABASE_HOST }}
-            DATABASE_PORT=${{ secrets.DEV_DATABASE_PORT }}
-            DATABASE_USERNAME=${{ secrets.DEV_DATABASE_USERNAME }}
-            DATABASE_PASSWORD=${{ secrets.DEV_DATABASE_PASSWORD }}
-            DATABASE_NAME=${{ secrets.DEV_DATABASE_NAME }}
-            SENTRY_URL=${{ secrets.DEV_SENTRY_URL }}
-  
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            EOF
+            set -e
+            TAG=${{ github.sha }}
             
-            docker system prune
-            docker image prune -a -f
-            docker compose -p amara-dev up --build -d
+            echo "$MIGRATE_YAML_B64" | base64 -d > /tmp/amara-dev-job.yaml
+            echo "$APP_YAML_B64" | base64 -d > /tmp/amara-dev-app.yaml
+            echo "$INGRESS_YAML_B64" | base64 -d > /tmp/amara-dev-ingress.yaml
 
-            echo "Deploy completed!"
+            wc -c /tmp/amara-dev-job.yaml /tmp/amara-dev-app.yaml /tmp/amara-dev-ingress.yaml
+            head -n 5 /tmp/amara-dev-job.yaml
+            head -n 5 /tmp/amara-dev-app.yaml
+            head -n 5 /tmp/amara-dev-ingress.yaml
+
+            microk8s kubectl apply -f /tmp/amara-dev-job.yaml
+            microk8s kubectl -n tongla-dev wait --for=condition=complete job/amara-migrate-${TAG} --timeout=20m
+
+            microk8s kubectl apply -f /tmp/amara-dev-app.yaml
+            microk8s kubectl -n tongla-dev rollout status deployment/amara-backend --timeout=5m
+
+            microk8s kubectl apply -f /tmp/amara-dev-ingress.yaml
+            microk8s kubectl -n tongla-dev describe ingress amara-backend
