@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: amara-backend
-  namespace: tongla
+  namespace: __NS__
 spec:
   replicas: 2
   selector:
@@ -17,7 +17,7 @@ spec:
         - name: ghcr-pull
       containers:
         - name: app
-          image: ghcr.io/algnot/amara-backend:__IMAGE_TAG__
+          image: ghcr.io/algnot/amara-backend:__TAG__
           volumeMounts:
             - name: amara-secrets-vol
               mountPath: /app/secret
@@ -48,7 +48,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: amara-backend
-  namespace: tongla
+  namespace: __NS__
 spec:
   type: ClusterIP
   selector:

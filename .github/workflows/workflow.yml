@@ -66,10 +66,12 @@ jobs:
         run: |
           set -e
           TAG=${{ github.sha }}
+          HOST=amara-api.tongla.dev
+          NS=tongla
           mkdir -p .rendered
-          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/app.yaml > .rendered/app.yaml
-          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/job.yaml > .rendered/job.yaml
-          sed "s|__IMAGE_TAG__|${TAG}|g; s|__TAG__|${TAG}|g" k8s/ingress.yaml > .rendered/ingress.yaml
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/app.yaml > .rendered/app.yaml
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/job.yaml > .rendered/job.yaml
+          sed "s|__TAG__|${TAG}|g; s|__NS__|${NS}|g; s|__HOST__|${HOST}|g" k8s/ingress.yaml > .rendered/ingress.yaml
 
       - name: Encode manifests as base64
         run: |

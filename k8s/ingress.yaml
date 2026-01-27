@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: amara-api-tls
-  namespace: tongla
+  namespace: __NS__
 spec:
   secretName: amara-api-tls
   dnsNames:
@@ -15,7 +15,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: amara-backend
-  namespace: tongla
+  namespace: __NS__
   annotations:
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
@@ -27,10 +27,10 @@ spec:
   ingressClassName: public
   tls:
     - hosts:
-        - amara-api.tongla.dev
+        - __HOST__
       secretName: amara-api-tls
   rules:
-    - host: amara-api.tongla.dev
+    - host: __HOST__
       http:
         paths:
           - path: /
