@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: amara-api-tls
   dnsNames:
-    - amara-api.tongla.dev
+    - __HOST__
   issuerRef:
     name: letsencrypt-prod-dns
     kind: ClusterIssuer
