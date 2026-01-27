@@ -22,18 +22,18 @@ jobs:
       - name: Run Ruff Lint
         run: ruff check .
 
-#  Test:
-#    if: github.ref == 'refs/heads/main'
-#    needs: Lint
-#    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
-#    with:
-#      commit_sha: ${{ github.sha }}
-#    secrets: inherit
+  Test:
+    if: github.ref == 'refs/heads/main'
+    needs: Lint
+    uses: algnot/amara-testing/.github/workflows/trigger-test.yml@main
+    with:
+      commit_sha: ${{ github.sha }}
+    secrets: inherit
 
   Build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: Lint
+    needs: Test
 
     steps:
       - uses: actions/checkout@v4
