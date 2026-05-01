@@ -24,7 +24,5 @@ fi
 TIMESTAMP=$(date +"%Y%d%m%H%M%S")
 
 "$PYTHON_BIN" "$ALEMBIC_BIN" upgrade head
-"$PYTHON_BIN" "$ALEMBIC_BIN" revision --autogenerate -m "migrate-$TIMESTAMP"
-"$PYTHON_BIN" "$ALEMBIC_BIN" upgrade head
 
-echo "Migration applied successfully at $TIMESTAMP"
+echo "Migration pulled successfully at $TIMESTAMP"

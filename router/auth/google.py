@@ -28,7 +28,11 @@ def login_with_google():
     find_user = User().filter(filters=[("email", "=", encrypt(email))], limit=1)
 
     if not find_user:
-        raise Exception(f"ผู้ใช้ {email} ยังไม่มีสิทธิ์ใช้งานระบบ กรุณาติดต่อผู้ดูแลระบบ")
+        user = User()
+        user.username = decoded_token.get("email")
+        user.email = decoded_token.get("email")
+        user.google_uid = uid
+        find_user = user.sign_up(uid)
 
     if find_user.google_uid == "":
         find_user = find_user.update({

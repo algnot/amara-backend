@@ -1,10 +1,24 @@
-from sqlalchemy import create_engine, and_, QueuePool, or_, asc, desc
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, and_, or_, asc, desc
+from sqlalchemy.orm import declarative_base, sessionmaker
 from util.encryptor import encrypt, decrypt
 from util.config import get_config
 
 BaseClass = declarative_base()
+ENGINE = None
+SESSION_MAKER = None
+
+
+def _get_bool_config(key: str, default=False):
+    return get_config(key, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _get_int_config(key: str, default: int):
+    value = get_config(key, str(default))
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
 
 def get_database_config():
     ssl_ca_path = get_config("DATABASE_SSL_CA", "")
@@ -20,6 +34,34 @@ def get_database_config():
     else:
         return f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
 
+
+def get_engine():
+    global ENGINE
+
+    if ENGINE is None:
+        ENGINE = create_engine(
+            get_database_config(),
+            echo=_get_bool_config("DATABASE_ECHO", False),
+            pool_size=_get_int_config("DATABASE_POOL_SIZE", 5),
+            max_overflow=_get_int_config("DATABASE_MAX_OVERFLOW", 5),
+            pool_timeout=_get_int_config("DATABASE_POOL_TIMEOUT", 30),
+            pool_recycle=_get_int_config("DATABASE_POOL_RECYCLE", 1800),
+            pool_pre_ping=True,
+            pool_use_lifo=True,
+        )
+
+    return ENGINE
+
+
+def get_session_maker():
+    global SESSION_MAKER
+
+    if SESSION_MAKER is None:
+        SESSION_MAKER = sessionmaker(bind=get_engine(), expire_on_commit=False)
+
+    return SESSION_MAKER
+
+
 class Base(BaseClass):
     __abstract__ = True
     __encrypted_field__ = []
@@ -28,7 +70,6 @@ class Base(BaseClass):
     query = None
 
     def __init__(self):
-        self.create_new_session()
         super().__init__()
 
     def close_connection(self):
@@ -41,17 +82,7 @@ class Base(BaseClass):
         if self.session is not None:
             return
 
-        engine = create_engine(
-            get_database_config(),
-            echo=True,
-            poolclass=QueuePool,
-            pool_size=50,
-            max_overflow=20,
-            pool_timeout=30,
-            pool_recycle=1800
-        )
-        session_maker = sessionmaker(bind=engine)
-        self.session = session_maker()
+        self.session = get_session_maker()()
         self.query = self.session.query(self.__class__)
 
     def create(self, values=None):
@@ -75,11 +106,13 @@ class Base(BaseClass):
                 decrypted_value = decrypt(getattr(self, field))
                 setattr(self, field, decrypted_value)
 
-            self.close_connection()
             return self
         except Exception as e:
-            self.session.rollback()
+            if self.session is not None:
+                self.session.rollback()
             raise e
+        finally:
+            self.close_connection()
 
     def update(self, values=None):
         if values is None:
@@ -101,103 +134,110 @@ class Base(BaseClass):
                 decrypted_value = decrypt(getattr(self, field))
                 setattr(self, field, decrypted_value)
 
-            self.close_connection()
             return self
         except Exception as e:
-            self.session.rollback()
+            if self.session is not None:
+                self.session.rollback()
             raise e
-
+        finally:
+            self.close_connection()
 
     def get_by_id(self, id):
-        self.create_new_session()
-        record = self.query.get(id)
+        try:
+            self.create_new_session()
+            record = self.session.get(self.__class__, id)
 
-        for field in self.__encrypted_field__:
-            decrypted_value = decrypt(getattr(record, field))
-            setattr(record, field, decrypted_value)
+            if record is None:
+                return None
 
-        self.close_connection()
-        return record
+            for field in self.__encrypted_field__:
+                decrypted_value = decrypt(getattr(record, field))
+                setattr(record, field, decrypted_value)
+
+            return record
+        finally:
+            self.close_connection()
 
     def filter(self, filters=None, limit=999999999, order_by=None, alway_list=False):
         if filters is None:
             filters = []
 
-        self.create_new_session()
-        filter_query = []
-        current_conditions = []
-        or_conditions = []
+        try:
+            self.create_new_session()
+            filter_query = []
+            current_conditions = []
+            or_conditions = []
 
-        for condition in filters:
-            if condition == "or":
-                if current_conditions:
-                    or_conditions.append(current_conditions)
-                current_conditions = []
-            elif condition == "and":
-                continue
-            else:
-                field, condition_operator, value = condition
-                if condition_operator == "ilike":
-                    current_conditions.append(getattr(self.__class__, field).ilike(f"%{value}%"))
-                elif condition_operator == "<=":
-                    current_conditions.append(getattr(self.__class__, field) <= value)
-                elif condition_operator == ">=":
-                    current_conditions.append(getattr(self.__class__, field) >= value)
-                elif condition_operator == "<":
-                    current_conditions.append(getattr(self.__class__, field) < value)
-                elif condition_operator == ">":
-                    current_conditions.append(getattr(self.__class__, field) > value)
-                elif condition_operator == "in":
-                    current_conditions.append(getattr(self.__class__, field).in_(value))
-                elif condition_operator == "!=":
-                    current_conditions.append(getattr(self.__class__, field) != value)
+            for condition in filters:
+                if condition == "or":
+                    if current_conditions:
+                        or_conditions.append(current_conditions)
+                    current_conditions = []
+                elif condition == "and":
+                    continue
                 else:
-                    current_conditions.append(getattr(self.__class__, field) == value)
-
-        if current_conditions:
-            or_conditions.append(current_conditions)
-
-        if or_conditions:
-            filter_query = or_(*[and_(*group) for group in or_conditions])
-        else:
-            filter_query = and_(*filter_query)
-
-        if order_by:
-            if isinstance(order_by, list):
-                order_criteria = []
-                for order_item in order_by:
-                    if isinstance(order_item, tuple) and len(order_item) == 2:
-                        field, direction = order_item
-                        if direction.lower() == "desc":
-                            order_criteria.append(desc(getattr(self.__class__, field)))
-                        else:
-                            order_criteria.append(asc(getattr(self.__class__, field)))
+                    field, condition_operator, value = condition
+                    if condition_operator == "ilike":
+                        current_conditions.append(getattr(self.__class__, field).ilike(f"%{value}%"))
+                    elif condition_operator == "<=":
+                        current_conditions.append(getattr(self.__class__, field) <= value)
+                    elif condition_operator == ">=":
+                        current_conditions.append(getattr(self.__class__, field) >= value)
+                    elif condition_operator == "<":
+                        current_conditions.append(getattr(self.__class__, field) < value)
+                    elif condition_operator == ">":
+                        current_conditions.append(getattr(self.__class__, field) > value)
+                    elif condition_operator == "in":
+                        current_conditions.append(getattr(self.__class__, field).in_(value))
+                    elif condition_operator == "!=":
+                        current_conditions.append(getattr(self.__class__, field) != value)
                     else:
-                        order_criteria.append(asc(getattr(self.__class__, order_item)))
+                        current_conditions.append(getattr(self.__class__, field) == value)
+
+            if current_conditions:
+                or_conditions.append(current_conditions)
+
+            if or_conditions:
+                filter_query = or_(*[and_(*group) for group in or_conditions])
             else:
-                order_criteria = [asc(getattr(self.__class__, order_by))]
-        else:
-            order_criteria = []
+                filter_query = and_(*filter_query)
 
-        query = self.query.filter(filter_query)
-        if order_criteria:
-            query = query.order_by(*order_criteria)
+            if order_by:
+                if isinstance(order_by, list):
+                    order_criteria = []
+                    for order_item in order_by:
+                        if isinstance(order_item, tuple) and len(order_item) == 2:
+                            field, direction = order_item
+                            if direction.lower() == "desc":
+                                order_criteria.append(desc(getattr(self.__class__, field)))
+                            else:
+                                order_criteria.append(asc(getattr(self.__class__, field)))
+                        else:
+                            order_criteria.append(asc(getattr(self.__class__, order_item)))
+                else:
+                    order_criteria = [asc(getattr(self.__class__, order_by))]
+            else:
+                order_criteria = []
 
-        records = query.limit(limit).all()
-        result_list = []
+            query = self.query.filter(filter_query)
+            if order_criteria:
+                query = query.order_by(*order_criteria)
 
-        for record in records:
-            for field in self.__encrypted_field__:
-                decrypted_value = decrypt(getattr(record, field))
-                setattr(record, field, decrypted_value)
-            result_list.append(record)
+            records = query.limit(limit).all()
+            result_list = []
 
-        self.close_connection()
+            for record in records:
+                for field in self.__encrypted_field__:
+                    decrypted_value = decrypt(getattr(record, field))
+                    setattr(record, field, decrypted_value)
+                result_list.append(record)
 
-        if len(result_list) == 1 and not alway_list:
-            return result_list[0]
+            if len(result_list) == 1 and not alway_list:
+                return result_list[0]
 
-        return result_list
+            return result_list
+        finally:
+            self.close_connection()
 
     def unlink(self):
         try:
@@ -205,7 +245,8 @@ class Base(BaseClass):
             self.session.delete(self)
             self.session.commit()
         except Exception as e:
-            self.session.rollback()
+            if self.session is not None:
+                self.session.rollback()
             raise e
         finally:
             self.close_connection()
