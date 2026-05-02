@@ -90,7 +90,7 @@ def handle_token(func):
     return wrapper
 
 def handle_access_token(permission=False):
-    if permission is not None:
+    if not permission:
         permission = []
 
     def decorator(func):
@@ -126,8 +126,14 @@ def handle_access_token(permission=False):
                     "name": user.username,
                 })
 
-                if permission and user_permissions not in permission:
-                    return jsonify({"status": False, "message": f"ผู้ใช้งานไม่มีสิทธิ์เข้าถึงกรุณาติดต่อผู้ดูแลระบบ ({', '.join(permission)})"}), 403
+                has_permission = True
+                if len(permission) > 0:
+                    for required_permission in permission:
+                        if required_permission not in user_permissions:
+                            has_permission = False
+
+                if not has_permission:
+                    return jsonify({"status": False, "message": f"ผู้ใช้งานไม่มีสิทธิ์เข้าถึงกรุณาติดต่อผู้ดูแลระบบ ({', '.join(permission)})"}), 401
 
             except Exception as e:
                 return jsonify({"status": False, "message": str(e)}), 403
