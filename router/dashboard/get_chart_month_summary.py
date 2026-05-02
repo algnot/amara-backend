@@ -31,7 +31,7 @@ def get_summary():
         WHERE batch != :batch
         AND given_date >= :start_date
         AND given_date < :end_date
-        AND c.archived = 0
+        AND archived = 0
         GROUP BY YEAR(given_date), MONTH(given_date)
         ORDER BY year, month
         """,
