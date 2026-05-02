@@ -31,6 +31,7 @@ def get_summary():
         WHERE c.batch != :batch
         AND c.given_date >= :start_date
         AND c.given_date < :end_date
+        AND c.archived = 0
         GROUP BY co.id, co.name_th
         ORDER BY total DESC
         """,

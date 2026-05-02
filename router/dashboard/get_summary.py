@@ -14,13 +14,13 @@ def get_summary():
     )[0]["total"]
 
     total_certificate = Base().execute_raw(
-        "SELECT COUNT(id) as total FROM certificate WHERE batch != :batch",
+        "SELECT COUNT(id) as total FROM certificate WHERE batch != :batch AND archived = 0",
         {"batch": 'draft'},
         fetch=True,
     )[0]["total"]
 
     total_draft_certificate = Base().execute_raw(
-        "SELECT COUNT(id) as total FROM certificate WHERE batch = :batch",
+        "SELECT COUNT(id) as total FROM certificate WHERE batch = :batch AND archived = 0",
         {"batch": 'draft'},
         fetch=True,
     )[0]["total"]
