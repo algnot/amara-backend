@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, and_, or_, asc, desc
 from sqlalchemy.orm import declarative_base, sessionmaker
 from util.encryptor import encrypt, decrypt
 from util.config import get_config
+from sqlalchemy import text
 
 BaseClass = declarative_base()
 ENGINE = None
@@ -251,6 +252,23 @@ class Base(BaseClass):
         finally:
             self.close_connection()
 
+    def execute_raw(self, sql: str, params: dict = None, fetch: bool = False):
+        session = get_session_maker()()
+
+        try:
+            result = session.execute(text(sql), params or {})
+
+            if fetch:
+                return result.mappings().all()
+
+            session.commit()
+            return result.rowcount
+
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
     def __del__(self):
         self.close_connection()
