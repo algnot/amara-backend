@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, VARCHAR, ForeignKey, DATETIME, Boolean
+from datetime import UTC, datetime
+
+from sqlalchemy import DATETIME, VARCHAR, Boolean, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
-from datetime import datetime
+
 from model.base import Base
 
 
@@ -24,7 +26,7 @@ class Certificate(Base):
     archived = Column(Boolean, default=False)
 
     def generate_certificate_number(self):
-        now = datetime.now()
+        now = datetime.now(UTC)
         yy = now.strftime("%Y")
         mm = now.strftime("%m")
 

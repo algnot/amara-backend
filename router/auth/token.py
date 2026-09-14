@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
-from util.request import handle_error, handle_refresh_token
+
 from model.user_tokens import UserTokens
+from util.request import handle_error, handle_refresh_token
 
 token_app = Blueprint("token", __name__)
 

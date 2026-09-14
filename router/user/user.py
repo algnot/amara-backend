@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from router.user.create_user import create_user_app
 from router.user.get_user import get_user_app
 from router.user.update_user import update_user_app

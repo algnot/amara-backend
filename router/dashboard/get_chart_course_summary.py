@@ -1,7 +1,9 @@
+from datetime import UTC, datetime
+
 from flask import Blueprint, jsonify, request
+
 from model.base import Base
-from util.request import handle_error, handle_access_token
-from datetime import datetime
+from util.request import handle_access_token, handle_error
 
 get_chart_course_summary_app = Blueprint("get_chart_course_summary", __name__)
 
@@ -14,12 +16,12 @@ def get_summary():
     end_month = int(request.args.get("end_month"))
     end_year = int(request.args.get("end_year"))
 
-    start_date = datetime(start_year, start_month, 1)
+    start_date = datetime(start_year, start_month, 1, tzinfo=UTC)
 
     if end_month == 12:
-        end_date = datetime(end_year + 1, 1, 1)
+        end_date = datetime(end_year + 1, 1, 1, tzinfo=UTC)
     else:
-        end_date = datetime(end_year, end_month + 1, 1)
+        end_date = datetime(end_year, end_month + 1, 1, tzinfo=UTC)
 
     result = Base().execute_raw(
         """

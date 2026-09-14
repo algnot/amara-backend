@@ -5,7 +5,7 @@ from model.certificate import Certificate
 from model.course import Course
 from model.saleperson import SalePerson
 from model.student import Student
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 get_certification_app = Blueprint("get_certification", __name__)
 

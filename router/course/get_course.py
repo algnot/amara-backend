@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
+
 from model.course import Course
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 get_course_app = Blueprint("get_course", __name__)
 

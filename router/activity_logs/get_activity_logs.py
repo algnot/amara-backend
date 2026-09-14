@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
 from model.activity_logs import ActivityLogs
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 get_activity_logs_app = Blueprint("get_activity_logs", __name__)
 

@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from model.activity_logs import ActivityLogs
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
-from util.request import handle_access_token, validate_request, handle_error
+from util.request import handle_access_token, handle_error, validate_request
 
 update_user_app = Blueprint("update_user", __name__)
 
@@ -62,7 +62,7 @@ def update_user_by_id(user_id):
     {user.email} ได้ทำการอัพเดทข้อมูลบัญชี <br/>
     <ul>
       <li>ชื่อผู้ใช้: <b>{user_updated.username}</b></li>
-      <li>บทบาท: <b>{str(user_updated.role.name)}</b></li>
+      <li>บทบาท: <b>{user_updated.role.name!s}</b></li>
     </ul>
     """)
 

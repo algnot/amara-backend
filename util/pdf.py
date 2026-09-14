@@ -1,4 +1,5 @@
 import os
+
 from PyPDF2 import PdfReader, PdfWriter
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))

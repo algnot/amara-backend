@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 
 from model.activity_logs import ActivityLogs
+from model.permission import Permission
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
-from util.request import handle_error, handle_access_token
-from model.permission import Permission
+from util.request import handle_access_token, handle_error
 
 get_user_app = Blueprint("get_user", __name__)
 

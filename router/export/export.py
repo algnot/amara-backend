@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from router.export.certificate import export_certificate_app
 from router.export.course import export_course_app
 from router.export.sale_person import export_sale_person_app

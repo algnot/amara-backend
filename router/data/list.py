@@ -1,14 +1,16 @@
 from datetime import datetime
+
 from flask import Blueprint, jsonify, request
+
 from model.certificate import Certificate
 from model.course import Course
+from model.permission import Permission
 from model.saleperson import SalePerson
 from model.student import Student
 from model.users import User
-from model.permission import Permission
 from util.date import format_thai_date
 from util.encryptor import encrypt
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 list_data_app = Blueprint("list_data_app", __name__)
 
@@ -176,7 +178,7 @@ def list_data():
     offset = query.get("offset", False)
     search_key = query.get("text", False)
 
-    if model not in mapper.keys():
+    if model not in mapper:
         raise Exception("model is not in mapper")
 
     if len(mapper[model]["permission"]) > 0 and not any(p in user_permissions for p in mapper[model]["permission"]):

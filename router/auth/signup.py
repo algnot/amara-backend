@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.routing import ValidationError
 
-from util.encryptor import encrypt, verify_password
-from util.request import validate_request, handle_error
 from model.users import User
-
+from util.encryptor import encrypt, verify_password
+from util.request import handle_error, validate_request
 
 sign_in_app = Blueprint("sign_in", __name__)
 

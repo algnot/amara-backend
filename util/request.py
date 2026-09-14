@@ -1,13 +1,13 @@
 from functools import wraps
 
 import sentry_sdk
-from flask import request, jsonify
+from flask import jsonify, request
 
+from model.permission import Permission
 from model.system_config import SystemConfig
 from model.user_to_permission import UserToPermission
-from model.user_tokens import UserTokens, TokenType
-from model.users import User, RoleType
-from model.permission import Permission
+from model.user_tokens import TokenType, UserTokens
+from model.users import RoleType, User
 
 
 def validate_request(required_fields):
@@ -35,12 +35,11 @@ def handle_error(func):
     def wrapper(*args, **kwargs):
         try:
             maintenance_message = SystemConfig().filter(filters=[("key", "=", "maintenance_message")], limit=1)
-            if maintenance_message:
-                if maintenance_message.value != "":
-                    return jsonify({
-                        "status": False,
-                        "message": maintenance_message.value
-                    }), 400
+            if maintenance_message and maintenance_message.value != "":
+                return jsonify({
+                    "status": False,
+                    "message": maintenance_message.value
+                }), 400
 
             return func(*args, **kwargs)
         except Exception as e:

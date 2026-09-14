@@ -4,8 +4,8 @@ from flask import Blueprint, jsonify, request
 
 from model.activity_logs import ActivityLogs
 from model.student import Student
-from model.users import User, RoleType
-from util.request import handle_error, handle_access_token
+from model.users import RoleType, User
+from util.request import handle_access_token, handle_error
 
 generate_user_student_app = Blueprint("generate_user_student", __name__)
 

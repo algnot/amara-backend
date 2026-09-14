@@ -1,8 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 
 from model.activity_logs import ActivityLogs
 from model.saleperson import SalePerson
-from util.request import handle_error, validate_request, handle_access_token
+from util.request import handle_access_token, handle_error, validate_request
 
 sale_person_app = Blueprint("sale_person", __name__, url_prefix="/sale-person")
 

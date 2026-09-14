@@ -4,7 +4,7 @@ from model.activity_logs import ActivityLogs
 from model.user_to_permission import UserToPermission
 from model.users import RoleType, User
 from util.encryptor import encrypt
-from util.request import handle_error, handle_access_token, validate_request
+from util.request import handle_access_token, handle_error, validate_request
 
 create_user_app = Blueprint("create_user", __name__)
 
@@ -45,7 +45,7 @@ def create_user():
 <ul>
   <li>ชื่อผู้ใช้: <b>{user_created.username}</b></li>
   <li>อีเมล: <b>{user_created.email}</b></li>
-  <li>บทบาท: <b>{str(user_created.role.name)}</b></li>
+  <li>บทบาท: <b>{user_created.role.name!s}</b></li>
 </ul>
 """)
 

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from model.activity_logs import ActivityLogs
 from model.certificate import Certificate
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 delete_certification_app = Blueprint("delete_certification", __name__)
 

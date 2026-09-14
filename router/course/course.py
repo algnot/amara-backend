@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from router.course.add_course import add_course_app
 from router.course.get_course import get_course_app
 from router.course.update_course import update_course_app

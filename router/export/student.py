@@ -1,8 +1,10 @@
 import csv
-from flask import Blueprint, Response
 from io import StringIO
+
+from flask import Blueprint, Response
+
 from model.student import Student
-from util.request import handle_error, handle_access_token
+from util.request import handle_access_token, handle_error
 
 export_student_app = Blueprint("export_student", __name__)
 
