@@ -28,7 +28,7 @@ mapper = {
     "student": {
         "model": Student,
         "offset": "id",
-        "filter": ["student_id"],
+        "filter": ["student_id", "firstname_th", "lastname_th", "firstname_en", "lastname_en"],
         "filter_operator": "ilike",
         "additional_filter": [],
         "additional_order": [],
@@ -95,6 +95,76 @@ def resolve_nested_attribute(obj, attr_path):
             break
     return obj
 
+
+def uses_encrypted_contains_search(model_class, search_fields, filter_operator):
+    if filter_operator not in ("ilike", "like"):
+        return False
+
+    encrypted_fields = set(getattr(model_class, "__encrypted_field__", []))
+    return any(field in encrypted_fields for field in search_fields)
+
+
+def record_matches_search(record, search_key, search_fields, filter_operator):
+    if filter_operator in ("ilike", "like"):
+        search_lower = search_key.lower()
+        for field in search_fields:
+            value = getattr(record, field, None)
+            if value is not None and search_lower in str(value).lower():
+                return True
+        return False
+
+    for field in search_fields:
+        if getattr(record, field, None) == search_key:
+            return True
+    return False
+
+
+def build_sql_filters(model_config, offset, search_key):
+    filter_list = []
+    if offset:
+        filter_list.append((model_config["offset"], "<=", int(offset)))
+
+    if not search_key:
+        filter_list.extend(model_config["additional_filter"])
+        return filter_list
+
+    if offset:
+        filter_list.append("and")
+
+    search_value = encrypt(search_key) if model_config["need_encrypt"] else search_key
+    filters_base = model_config["filter"]
+    for index, value in enumerate(filters_base):
+        filter_list.append((value, model_config["filter_operator"], search_value))
+        if index < len(filters_base) - 1:
+            filter_list.append("or")
+
+    filter_list.extend(model_config["additional_filter"])
+    return filter_list
+
+
+def fetch_records_with_encrypted_search(model_config, offset, search_key, limit, order_by_list):
+    filter_list = []
+    if offset:
+        filter_list.append((model_config["offset"], "<=", int(offset)))
+    filter_list.extend(model_config["additional_filter"])
+
+    records = model_config["model"]().filter(
+        filters=filter_list,
+        order_by=order_by_list,
+        alway_list=True,
+    )
+    if not isinstance(records, list):
+        records = [records]
+
+    search_fields = model_config["filter"]
+    filter_operator = model_config["filter_operator"]
+    matched_records = [
+        record
+        for record in records
+        if record_matches_search(record, search_key, search_fields, filter_operator)
+    ]
+    return matched_records[: limit + 1]
+
 @list_data_app.route("/list", methods=["GET"])
 @handle_access_token()
 @handle_error
@@ -112,32 +182,26 @@ def list_data():
     if len(mapper[model]["permission"]) > 0 and not any(p in user_permissions for p in mapper[model]["permission"]):
         raise Exception("users do not have permission")
 
-    filter_list = []
-    if offset:
-        filter_list.append((mapper[model]["offset"], "<=", int(offset)))
-
-    if search_key:
-        if offset:
-            filter_list.append("and")
-        if mapper[model]["need_encrypt"]:
-            search_key = encrypt(search_key)
-
-        filter_list = []
-        filters_base = mapper[model]["filter"]
-        for index, value in enumerate(filters_base):
-            condition = (value, mapper[model]["filter_operator"], search_key)
-            filter_list.append(condition)
-
-            if index < len(filters_base) - 1:
-                filter_list.append("or")
-
-    filter_list.extend(mapper[model]["additional_filter"])
-
+    model_config = mapper[model]
     order_by_list = []
-    order_by_list.extend(mapper[model]["additional_order"])
-    order_by_list.append((mapper[model]["offset"], "desc"))
+    order_by_list.extend(model_config["additional_order"])
+    order_by_list.append((model_config["offset"], "desc"))
 
-    datas = mapper[model]["model"]().filter(filters=filter_list, limit=limit + 1, order_by=order_by_list)
+    if search_key and uses_encrypted_contains_search(
+        model_config["model"],
+        model_config["filter"],
+        model_config["filter_operator"],
+    ):
+        datas = fetch_records_with_encrypted_search(
+            model_config,
+            offset,
+            search_key,
+            limit,
+            order_by_list,
+        )
+    else:
+        filter_list = build_sql_filters(model_config, offset, search_key)
+        datas = model_config["model"]().filter(filters=filter_list, limit=limit + 1, order_by=order_by_list)
     if not isinstance(datas, list):
         datas = [datas]
     response = []
