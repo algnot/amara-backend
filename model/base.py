@@ -1,8 +1,10 @@
-from sqlalchemy import create_engine, and_, or_, asc, desc
+from typing import ClassVar
+
+from sqlalchemy import and_, asc, create_engine, desc, or_, text
 from sqlalchemy.orm import declarative_base, sessionmaker
-from util.encryptor import encrypt, decrypt
+
 from util.config import get_config
-from sqlalchemy import text
+from util.encryptor import decrypt, encrypt
 
 BaseClass = declarative_base()
 ENGINE = None
@@ -65,7 +67,7 @@ def get_session_maker():
 
 class Base(BaseClass):
     __abstract__ = True
-    __encrypted_field__ = []
+    __encrypted_field__: ClassVar[list] = []
 
     session = None
     query = None
@@ -108,10 +110,10 @@ class Base(BaseClass):
                 setattr(self, field, decrypted_value)
 
             return self
-        except Exception as e:
+        except Exception:
             if self.session is not None:
                 self.session.rollback()
-            raise e
+            raise
         finally:
             self.close_connection()
 
@@ -136,10 +138,10 @@ class Base(BaseClass):
                 setattr(self, field, decrypted_value)
 
             return self
-        except Exception as e:
+        except Exception:
             if self.session is not None:
                 self.session.rollback()
-            raise e
+            raise
         finally:
             self.close_connection()
 
@@ -245,14 +247,14 @@ class Base(BaseClass):
             self.create_new_session()
             self.session.delete(self)
             self.session.commit()
-        except Exception as e:
+        except Exception:
             if self.session is not None:
                 self.session.rollback()
-            raise e
+            raise
         finally:
             self.close_connection()
 
-    def execute_raw(self, sql: str, params: dict = None, fetch: bool = False):
+    def execute_raw(self, sql: str, params: dict | None = None, fetch: bool = False):
         session = get_session_maker()()
 
         try:

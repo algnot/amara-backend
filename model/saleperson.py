@@ -1,10 +1,13 @@
-from sqlalchemy import Column, Integer, VARCHAR
+from typing import ClassVar
+
+from sqlalchemy import VARCHAR, Column, Integer
+
 from model.base import Base
 
 
 class SalePerson(Base):
     __tablename__ = "sale_person"
-    __encrypted_field__ = ["firstname", "lastname"]
+    __encrypted_field__: ClassVar[list] = ["firstname", "lastname"]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     firstname = Column(VARCHAR(200), nullable=False)

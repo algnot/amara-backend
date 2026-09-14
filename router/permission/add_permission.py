@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 
-from model.users import RoleType
 from model.permission import Permission
-from util.request import handle_error, handle_access_token, validate_request
+from model.users import RoleType
+from util.request import handle_access_token, handle_error, validate_request
 
 add_permission_app = Blueprint("add_permission", __name__)
 

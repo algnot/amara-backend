@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from model.activity_logs import ActivityLogs
 from model.course import Course
-from util.request import handle_error, validate_request, handle_access_token
+from util.request import handle_access_token, handle_error, validate_request
 
 update_course_app = Blueprint("update_course", __name__)
 

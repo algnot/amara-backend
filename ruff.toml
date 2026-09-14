@@ -1,0 +1,5 @@
+target-version = "py311"
+
+[lint]
+# TRY002/BLE001 match existing API error-handling patterns (raise Exception, broad except).
+ignore = ["TRY002", "BLE001"]

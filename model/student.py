@@ -1,12 +1,15 @@
-from sqlalchemy import Column, Integer, VARCHAR, ForeignKey
+from datetime import UTC, datetime
+from typing import ClassVar
+
+from sqlalchemy import VARCHAR, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+
 from model.base import Base
-from datetime import datetime
 
 
 class Student(Base):
     __tablename__ = "student"
-    __encrypted_field__ = ["firstname_th", "lastname_th", "firstname_en", "lastname_en"]
+    __encrypted_field__: ClassVar[list] = ["firstname_th", "lastname_th", "firstname_en", "lastname_en"]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     student_id = Column(VARCHAR(200), nullable=False)
@@ -21,7 +24,7 @@ class Student(Base):
     user_id = Column(Integer, nullable=True)
 
     def generate_student_id(self):
-        now = datetime.now()
+        now = datetime.now(UTC)
         yy = now.strftime("%y")
         mm = now.strftime("%m")
 

@@ -1,10 +1,12 @@
-import firebase_admin
 import os
+
+import firebase_admin
+from firebase_admin import auth, credentials
 from flask import Blueprint, jsonify, request
+
 from model.users import User
 from util.encryptor import encrypt
 from util.request import handle_error, validate_request
-from firebase_admin import credentials, auth
 
 login_with_google_app = Blueprint("login_with_google", __name__)
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from util.request import handle_error, handle_access_token
+
+from util.request import handle_access_token, handle_error
 
 me_app = Blueprint("me", __name__)
 

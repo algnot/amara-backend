@@ -1,7 +1,8 @@
 import datetime
 import enum
+from typing import ClassVar
 
-from sqlalchemy import Column, Integer, TIMESTAMP, VARBINARY, Enum, TEXT
+from sqlalchemy import TEXT, TIMESTAMP, VARBINARY, Column, Enum, Integer
 from sqlalchemy.orm import relationship
 
 from model.base import Base
@@ -17,16 +18,16 @@ class RoleType(enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
-    __encrypted_field__ = ["username", "email", "google_uid"]
+    __encrypted_field__: ClassVar[list] = ["username", "email", "google_uid"]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(VARBINARY(200), nullable=False)
     email = Column(VARBINARY(200), nullable=False, unique=True)
     hashed_password = Column(VARBINARY(200), nullable=False)
     tokens = relationship("UserTokens", back_populates="user", cascade="all, delete-orphan")
-    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc))
-    updated_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc),
-                                   onupdate=datetime.datetime.now(datetime.timezone.utc))
+    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC))
+    updated_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC),
+                                   onupdate=datetime.datetime.now(datetime.UTC))
     role = Column(Enum(RoleType), default=RoleType.USER, nullable=False)
     image_url = Column(TEXT, nullable=True)
     google_uid = Column(VARBINARY(200), nullable=True)

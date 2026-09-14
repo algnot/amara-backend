@@ -1,11 +1,11 @@
 import json
-import bcrypt
 import os
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from jwcrypto import jwk
 
+import bcrypt
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from jwcrypto import jwk
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 secret_key_path = os.path.join(BASE_DIR, "../secret/secret_key.txt")

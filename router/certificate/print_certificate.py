@@ -1,15 +1,21 @@
 import os
 import tempfile
-from flask import Blueprint, send_file, request
+
+from flask import Blueprint, request, send_file
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+
 from model.certificate import Certificate
 from model.course import Course
 from model.student import Student
-from util.date import format_eng_date, format_thai_date_with_thai_numerals, to_thai_numerals
-from util.pdf import merge_pdfs, cleanup_files, fill_content_pdf
+from util.date import (
+    format_eng_date,
+    format_thai_date_with_thai_numerals,
+    to_thai_numerals,
+)
+from util.pdf import cleanup_files, fill_content_pdf, merge_pdfs
 from util.request import handle_error
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 
 file_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -324,16 +330,16 @@ def print_certification(language, version, certification_number):
     try:
         for index, field in enumerate(mapping):
             text_width_prev = 0 if index == 0 else c.stringWidth(mapping[index - 1]["content"], mapping[index - 1]["font"], mapping[index - 1]["font_size"])
-            text_width = c.stringWidth(mapping[index]["content"], mapping[index]["font"], mapping[index]["font_size"])
+            text_width = c.stringWidth(field["content"], field["font"], field["font_size"])
             text_width_next = 0 if index + 1 > len(mapping) - 1 else c.stringWidth(mapping[index + 1]["content"], mapping[index + 1]["font"], mapping[index + 1]["font_size"])
             print(text_width_prev, text_width, text_width_next)
             fill_content_pdf(c=c,
-                             x_position=eval(mapping[index]["x_position"]),
-                             y_position=eval(mapping[index]["y_position"]),
-                             content=mapping[index]["content"],
-                             color=mapping[index]["color"],
-                             font=mapping[index]["font"],
-                             font_size=mapping[index]["font_size"])
+                             x_position=eval(field["x_position"]),
+                             y_position=eval(field["y_position"]),
+                             content=field["content"],
+                             color=field["color"],
+                             font=field["font"],
+                             font_size=field["font_size"])
 
         c.save()
         if without_layout.lower() == "true":

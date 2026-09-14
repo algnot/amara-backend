@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, VARCHAR, TEXT
+from sqlalchemy import TEXT, VARCHAR, Column, Integer
+
 from model.base import Base
 
 
