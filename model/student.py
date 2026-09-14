@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import ClassVar
 
 from sqlalchemy import VARCHAR, Column, ForeignKey, Integer
@@ -24,7 +24,7 @@ class Student(Base):
     user_id = Column(Integer, nullable=True)
 
     def generate_student_id(self):
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         yy = now.strftime("%y")
         mm = now.strftime("%m")
 

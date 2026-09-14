@@ -25,9 +25,9 @@ class User(Base):
     email = Column(VARBINARY(200), nullable=False, unique=True)
     hashed_password = Column(VARBINARY(200), nullable=False)
     tokens = relationship("UserTokens", back_populates="user", cascade="all, delete-orphan")
-    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC))
-    updated_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC),
-                                   onupdate=datetime.datetime.now(datetime.UTC))
+    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc))
+    updated_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc),
+                                   onupdate=datetime.datetime.now(datetime.timezone.utc))
     role = Column(Enum(RoleType), default=RoleType.USER, nullable=False)
     image_url = Column(TEXT, nullable=True)
     google_uid = Column(VARBINARY(200), nullable=True)

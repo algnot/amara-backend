@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import TEXT, TIMESTAMP, VARCHAR, Column, Integer
 
@@ -13,7 +13,7 @@ class ActivityLogs(Base):
     ref_id = Column(Integer, nullable=False)
     content = Column(TEXT, nullable=False)
 
-    created_at = Column(TIMESTAMP, default=datetime.now(UTC), nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.now(timezone.utc), nullable=False)
 
     def create_activity_log(self, topic, ref_id, content):
         find_duplicate_log = self.filter(filters=[("topic", "=" ,topic), ("ref_id", "=", ref_id)], order_by=[("id", "desc")], limit=1, alway_list=True)
@@ -25,7 +25,7 @@ class ActivityLogs(Base):
             "topic": topic,
             "ref_id": ref_id,
             "content": content,
-            "created_at": datetime.now(UTC),
+            "created_at": datetime.now(timezone.utc),
         })
 
     def get_activity_logs(self, topic, ref_id):

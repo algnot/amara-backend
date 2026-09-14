@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request
 
@@ -16,12 +16,12 @@ def get_summary():
     end_month = int(request.args.get("end_month"))
     end_year = int(request.args.get("end_year"))
 
-    start_date = datetime(start_year, start_month, 1, tzinfo=UTC)
+    start_date = datetime(start_year, start_month, 1, tzinfo=timezone.utc)
 
     if end_month == 12:
-        end_date = datetime(end_year + 1, 1, 1, tzinfo=UTC)
+        end_date = datetime(end_year + 1, 1, 1, tzinfo=timezone.utc)
     else:
-        end_date = datetime(end_year, end_month + 1, 1, tzinfo=UTC)
+        end_date = datetime(end_year, end_month + 1, 1, tzinfo=timezone.utc)
 
     result = Base().execute_raw(
         """
@@ -78,8 +78,8 @@ def get_summary():
         })
 
         if m == 12:
-            current = datetime(y + 1, 1, 1, tzinfo=UTC)
+            current = datetime(y + 1, 1, 1, tzinfo=timezone.utc)
         else:
-            current = datetime(y, m + 1, 1, tzinfo=UTC)
+            current = datetime(y, m + 1, 1, tzinfo=timezone.utc)
 
     return jsonify(chart_data)

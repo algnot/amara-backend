@@ -22,7 +22,7 @@ class TokenType(enum.Enum):
     RESET_PASSWORD = 3
 
 def default_expiration_time():
-    return datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=7)
+    return datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)
 
 class UserTokens(Base):
     __tablename__ = "user_tokens"
@@ -32,7 +32,7 @@ class UserTokens(Base):
     user = relationship("User", back_populates="tokens")
 
     type = Column(Enum(TokenType), nullable=False)
-    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC), nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.timezone.utc), nullable=False)
     expires_at = Column(TIMESTAMP, default=default_expiration_time, nullable=False)
     revoked = Column(Boolean, default=False)
 
@@ -44,7 +44,7 @@ class UserTokens(Base):
             "sub": f"{self.user_id}:{self.id}",
             "type": str(type.value),
             "iat": int(self.created_at.timestamp()),
-            "exp": int((datetime.datetime.now(datetime.UTC) + expired_in).timestamp()),
+            "exp": int((datetime.datetime.now(datetime.timezone.utc) + expired_in).timestamp()),
         })
 
         key = self._load_signing_key()
@@ -57,8 +57,8 @@ class UserTokens(Base):
         decoded = jwt.JWT(key=key, jwt=token)
         payload = json.loads(decoded.claims)
 
-        current_time = datetime.datetime.now(datetime.UTC)
-        expiration_time = datetime.datetime.fromtimestamp(payload["exp"], datetime.UTC)
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        expiration_time = datetime.datetime.fromtimestamp(payload["exp"], datetime.timezone.utc)
         if expiration_time < current_time:
             raise Exception("Token has expired")
 
@@ -90,7 +90,7 @@ class UserTokens(Base):
         refresh_token = UserTokens()
         refresh_token.create({
             "user_id": self.user_id,
-            "expires_at": datetime.datetime.now(datetime.UTC) + expired_in,
+            "expires_at": datetime.datetime.now(datetime.timezone.utc) + expired_in,
             "type": TokenType.REFRESH
         })
         return refresh_token.generate_jwt(expired_in=expired_in, type=TokenType.REFRESH)
@@ -100,7 +100,7 @@ class UserTokens(Base):
         access_token = UserTokens()
         access_token.create({
             "user_id": self.user_id,
-            "expires_at": datetime.datetime.now(datetime.UTC) + expired_in,
+            "expires_at": datetime.datetime.now(datetime.timezone.utc) + expired_in,
             "type": TokenType.ACCESS
         })
         return access_token.generate_jwt(expired_in, type=TokenType.ACCESS)
@@ -110,7 +110,7 @@ class UserTokens(Base):
         access_token = UserTokens()
         access_token.create({
             "user_id": user_id,
-            "expires_at": datetime.datetime.now(datetime.UTC) + expired_in,
+            "expires_at": datetime.datetime.now(datetime.timezone.utc) + expired_in,
             "type": TokenType.RESET_PASSWORD
         })
         return access_token.generate_jwt(expired_in, type=TokenType.RESET_PASSWORD)

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DATETIME, VARCHAR, Boolean, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
@@ -26,7 +26,7 @@ class Certificate(Base):
     archived = Column(Boolean, default=False)
 
     def generate_certificate_number(self):
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         yy = now.strftime("%Y")
         mm = now.strftime("%m")
 
