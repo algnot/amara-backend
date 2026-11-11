@@ -4,9 +4,11 @@ import socket
 import subprocess
 import sys
 import urllib.request
+from contextlib import contextmanager
 
 from prometheus_client import REGISTRY, generate_latest
 
+import util.metrics as http_metrics
 from app import app
 from util.metrics import (
     DURATION,
@@ -83,6 +85,19 @@ def _free_port():
     port = sock.getsockname()[1]
     sock.close()
     return port
+
+
+@contextmanager
+def _fresh_metrics_server():
+    previous = http_metrics._httpd
+    http_metrics._httpd = None
+    try:
+        yield
+    finally:
+        current = http_metrics._httpd
+        if current is not None and current is not previous:
+            current.shutdown()
+        http_metrics._httpd = previous
 
 
 def test_route_label_is_template():
@@ -320,3 +335,44 @@ print(path)
         raise AssertionError(completed.stderr or completed.stdout)
     path = completed.stdout.strip().splitlines()[-1]
     shutil.rmtree(path, ignore_errors=True)
+
+
+def test_reloader_supervisor_does_not_bind_metrics_port(monkeypatch):
+    monkeypatch.setenv("FLASK_DEBUG", "1")
+    monkeypatch.delenv("FLASK_RUN_RELOAD", raising=False)
+    monkeypatch.delenv("WERKZEUG_RUN_MAIN", raising=False)
+    monkeypatch.delenv(GUNICORN_METRICS_ENV, raising=False)
+    monkeypatch.setenv("METRICS_PORT", str(_free_port()))
+    with _fresh_metrics_server():
+        assert start_metrics_server() is None
+        assert http_metrics._httpd is None
+
+
+def test_reload_without_debug_leaves_the_port_for_the_child(monkeypatch):
+    monkeypatch.setenv("FLASK_DEBUG", "0")
+    monkeypatch.setenv("FLASK_RUN_RELOAD", "true")
+    monkeypatch.delenv("WERKZEUG_RUN_MAIN", raising=False)
+    monkeypatch.delenv(GUNICORN_METRICS_ENV, raising=False)
+    monkeypatch.setenv("METRICS_PORT", str(_free_port()))
+    with _fresh_metrics_server():
+        assert start_metrics_server() is None
+
+    port = _free_port()
+    monkeypatch.setenv("WERKZEUG_RUN_MAIN", "true")
+    monkeypatch.setenv("METRICS_PORT", str(port))
+    with _fresh_metrics_server():
+        httpd = start_metrics_server()
+        assert httpd is not None
+        assert httpd.server_address[1] == port
+
+
+def test_gunicorn_master_binds_when_flask_debug_is_on(monkeypatch):
+    monkeypatch.setenv("FLASK_DEBUG", "1")
+    monkeypatch.delenv("WERKZEUG_RUN_MAIN", raising=False)
+    monkeypatch.setenv(GUNICORN_METRICS_ENV, "1")
+    port = _free_port()
+    monkeypatch.setenv("METRICS_PORT", str(port))
+    with _fresh_metrics_server():
+        httpd = start_metrics_server(from_gunicorn_master=True)
+        assert httpd is not None
+        assert httpd.server_address[1] == port

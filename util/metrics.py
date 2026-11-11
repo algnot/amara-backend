@@ -235,12 +235,39 @@ def _teardown_request(exc):
         logger.exception("failed to finish http request metrics")
 
 
+_TRUE_FLAGS = {"1", "true", "t", "yes", "y", "on"}
+_FALSE_FLAGS = {"", "0", "false", "f", "no", "n", "off"}
+
+
+def _env_flag(name):
+    raw = os.environ.get(name)
+    if raw is None:
+        return None
+    value = raw.strip().lower()
+    if value in _TRUE_FLAGS:
+        return True
+    if value in _FALSE_FLAGS:
+        return False
+    return None
+
+
+def _werkzeug_reloader_enabled():
+    """Match Flask: reload follows ``FLASK_RUN_RELOAD``, otherwise ``FLASK_DEBUG``."""
+    reload = _env_flag("FLASK_RUN_RELOAD")
+    if reload is not None:
+        return reload
+    return _env_flag("FLASK_DEBUG") is True
+
+
 def _reloader_parent():
-    """True for the Werkzeug reloader supervisor, which does not serve traffic."""
+    """True for the Werkzeug supervisor, which imports the app but does not serve.
+
+    The serving child sets ``WERKZEUG_RUN_MAIN=true``. A process that is not
+    using the reloader leaves that variable unset and must bind the port itself.
+    """
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         return False
-    flag = os.environ.get("FLASK_DEBUG", "")
-    return flag.lower() not in ("", "0", "false", "no")
+    return _werkzeug_reloader_enabled()
 
 
 def _scrape_registry():
@@ -255,8 +282,8 @@ def start_metrics_server(port=None, *, from_gunicorn_master=False):
     """Serve ``/metrics`` on the internal metrics port.
 
     Gunicorn workers skip this; the master binds the port once from
-    ``when_ready``. An explicit ``port`` is for tests and ignores the
-    reloader-parent guard.
+    ``when_ready`` and is not treated as a Werkzeug reloader parent.
+    An explicit ``port`` is for tests and ignores the reloader guard.
     """
     global _httpd
     if _httpd is not None:
@@ -267,7 +294,7 @@ def start_metrics_server(port=None, *, from_gunicorn_master=False):
         return None
 
     explicit_port = port is not None
-    if not explicit_port and _reloader_parent():
+    if not explicit_port and not from_gunicorn_master and _reloader_parent():
         return None
     if port is None:
         port = resolve_metrics_port()
