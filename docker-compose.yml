@@ -7,6 +7,7 @@ services:
       - ./.env
     ports:
       - "${APP_PORT:-9000}:9000"
+      - "9091:9091"
     restart: always
     volumes:
       - ./model:/mnt/model
