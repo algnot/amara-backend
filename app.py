@@ -14,6 +14,7 @@ from router.sale_person.sale_person import sale_person_app
 from router.student.student import student_app
 from router.user.user import user_app
 from util.config import get_config
+from util.metrics import init_http_metrics
 
 sentry_url = get_config("SENTRY_URL", "")
 
@@ -46,6 +47,8 @@ app.register_blueprint(dashboard_app)
 def _hc():
     return jsonify({"status": "server is running"})
 
+
+init_http_metrics(app)
 
 if __name__ == "__main__":
     app.run(threaded=True)

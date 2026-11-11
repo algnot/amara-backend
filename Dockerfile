@@ -9,4 +9,5 @@ RUN pip install -r requirements.txt
 RUN chmod +x run.sh
 
 EXPOSE 9000
+EXPOSE 9091
 CMD ["./run.sh"]
