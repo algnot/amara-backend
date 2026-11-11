@@ -148,6 +148,25 @@ def test_unmatched_route_label():
     assert _counter("unmatched", "404") == before + 1
 
 
+def test_unknown_method_is_a_single_label():
+    raw_method = "X" * 80
+    before = _counter("unmatched", "404", method="OTHER") or 0
+    response = app.test_client().open("/no-such-route", method=raw_method)
+    assert response.status_code == 404
+    assert _counter("unmatched", "404", method="OTHER") == before + 1
+    assert _counter("unmatched", "404", method=raw_method) is None
+
+    template = "/users/<int:id>"
+    before_route = _counter(template, "405", method="OTHER") or 0
+    routed = app.test_client().open("/users/42", method="NOPE")
+    assert routed.status_code == 405
+    assert _counter(template, "405", method="OTHER") == before_route + 1
+    assert _counter(template, "405", method="NOPE") is None
+    payload = generate_latest(REGISTRY).decode()
+    assert raw_method not in payload
+    assert 'method="NOPE"' not in payload
+
+
 def test_method_not_allowed_keeps_route_template():
     template = "/users/<int:id>"
     before = _counter(template, "405", method="POST") or 0

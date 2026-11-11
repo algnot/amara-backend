@@ -67,6 +67,21 @@ IN_FLIGHT = Gauge(
     multiprocess_mode="livesum",
 )
 
+# Standard methods only. Anything else collapses to one series so a client
+# cannot grow the metric set by inventing request-line tokens.
+_KNOWN_METHODS = frozenset({
+    "GET",
+    "HEAD",
+    "POST",
+    "PUT",
+    "DELETE",
+    "CONNECT",
+    "OPTIONS",
+    "TRACE",
+    "PATCH",
+})
+_OTHER_METHOD = "OTHER"
+
 # Probes and the metrics scrape must not land in the API series.
 _SKIP_PATHS = frozenset({
     "/metrics",
@@ -124,6 +139,14 @@ def _should_skip(path):
     return _normalize_path(path) in _SKIP_PATHS
 
 
+def _method_label(method):
+    if isinstance(method, str):
+        normalized = method.upper()
+        if normalized in _KNOWN_METHODS:
+            return normalized
+    return _OTHER_METHOD
+
+
 def route_template():
     """Flask route template, or ``unmatched`` when nothing matched.
 
@@ -171,7 +194,7 @@ def _observe(status_code):
     try:
         labels = {
             "service": service,
-            "method": request.method,
+            "method": _method_label(request.method),
             "route": route_template(),
             "status": str(int(status_code)),
         }
